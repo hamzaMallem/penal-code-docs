@@ -1,0 +1,21 @@
+
+> qanun-docs@0.1.0 dev
+> next dev
+
+▲ Next.js 16.1.1 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://10.210.189.223:3000
+
+✓ Starting...
+✓ Ready in 3s
+ GET /dp/code_book_0/3 200 in 3.6s (compile: 2.5s, render: 1061ms)
+⚠ Cross origin request detected from 10.210.189.223 to /_next/* resource. In a future major version of Next.js, you will need to explicitly configure "allowedDevOrigins" in next.config to allow this.
+Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
+ GET /dp 404 in 392ms (compile: 214ms, render: 179ms)
+ GET / 200 in 309ms (compile: 72ms, render: 237ms)
+ GET /cpp/book_1st/15 200 in 226ms (compile: 33ms, render: 194ms)
+ GET /dp 404 in 89ms (compile: 10ms, render: 79ms)
+ GET / 200 in 109ms (compile: 9ms, render: 100ms)
+ GET /dp/code_book_2/110 200 in 156ms (compile: 22ms, render: 133ms)
+ GET /dp 404 in 58ms (compile: 10ms, render: 48ms)
+ GET /dp 404 in 134ms (compile: 15ms, render: 119ms)

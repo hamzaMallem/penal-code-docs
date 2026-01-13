@@ -94,7 +94,7 @@ export function SearchModal({ isOpen, onClose, onSearch }: SearchModalProps) {
               {results.map((result, index) => (
                 <a
                   key={index}
-                  href={`/${result.bookName}/${result.articleNumber}`}
+                  href={`/${result.lawKey}/${result.bookName}/${result.articleNumber}`}
                   className="block p-3 rounded-lg border border-border hover:bg-accent transition-colors"
                   onClick={handleClose}
                 >

@@ -1,0 +1,18 @@
+
+> qanun-docs@0.1.0 dev
+> next dev
+
+▲ Next.js 16.1.1 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://10.210.189.223:3000
+
+✓ Starting...
+✓ Ready in 2.6s
+ GET / 200 in 3.4s (compile: 2.0s, render: 1372ms)
+ GET /.well-known/appspecific/com.chrome.devtools.json 200 in 4.9s (compile: 4.4s, render: 487ms)
+ GET / 200 in 232ms (compile: 11ms, render: 221ms)
+ GET /.well-known/appspecific/com.chrome.devtools.json 200 in 534ms (compile: 53ms, render: 480ms)
+ GET /cpp/book_2nd/252 200 in 601ms (compile: 21ms, render: 580ms)
+ GET /.well-known/appspecific/com.chrome.devtools.json 200 in 383ms (compile: 68ms, render: 315ms)
+ GET /cpp/book_2nd/252 200 in 132ms (compile: 18ms, render: 114ms)
+ GET /.well-known/appspecific/com.chrome.devtools.json 200 in 331ms (compile: 6ms, render: 325ms)

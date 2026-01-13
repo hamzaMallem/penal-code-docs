@@ -9,146 +9,33 @@ import { Footer } from "@/components/layout/Footer";
 import { SearchModal } from "@/components/features/SearchModal";
 import { ArticleView } from "@/components/features/ArticleView";
 import { ArticleNav } from "@/components/features/ArticleNav";
+import { MobileArticleNav } from "@/components/features/MobileArticleNav";
 import { useKeyboardNav } from "@/hooks/useKeyboardNav";
 import { useGlobalSearch } from "@/hooks/useGlobalSearch";
 import { ChevronLeft, Home, ChevronDown, FileText } from "lucide-react";
-
-// Generic node interface - treats JSON as pure tree of unknown node types
-interface GenericNode {
-  name?: string;
-  title?: string;
-  number?: string;
-  paragraphs?: string[];
-  // All possible children arrays - checked dynamically
-  chapters?: GenericNode[];
-  sections?: GenericNode[];
-  branches?: GenericNode[];
-  articles?: GenericNode[];
-  subsections?: GenericNode[];
-  [key: string]: unknown;
-}
-
-// Static imports for all book data files
-import book0Data from "@/data/code_procedure_penale/book_0.json";
-import book1Data from "@/data/code_procedure_penale/book_1st.json";
-import book2Data from "@/data/code_procedure_penale/book_2nd.json";
-import book3Data from "@/data/code_procedure_penale/book_3rd.json";
-import book4Data from "@/data/code_procedure_penale/book_4th.json";
-import book5Data from "@/data/code_procedure_penale/book_5th.json";
-import book6Data from "@/data/code_procedure_penale/book_6th.json";
-import book7Data from "@/data/code_procedure_penale/book_7th.json";
-import book8Data from "@/data/code_procedure_penale/book_8th.json";
-
-// Book data mapping using static imports
-const bookDataMap: Record<string, GenericNode> = {
-  book_0: book0Data as GenericNode,
-  book_1: book1Data as GenericNode,
-  book_2: book2Data as GenericNode,
-  book_3: book3Data as GenericNode,
-  book_4: book4Data as GenericNode,
-  book_5: book5Data as GenericNode,
-  book_6: book6Data as GenericNode,
-  book_7: book7Data as GenericNode,
-  book_8: book8Data as GenericNode,
-};
-
-// Known children property names
-const CHILDREN_KEYS = ["chapters", "sections", "branches", "articles", "subsections"];
-
-// Get all children arrays from a node
-function getChildrenArrays(node: GenericNode): { key: string; children: GenericNode[] }[] {
-  const result: { key: string; children: GenericNode[] }[] = [];
-  
-  for (const key of CHILDREN_KEYS) {
-    const children = node[key] as GenericNode[] | undefined;
-    if (children && Array.isArray(children) && children.length > 0) {
-      result.push({ key, children });
-    }
-  }
-  
-  return result;
-}
-
-// Check if a node has any children
-function hasChildren(node: GenericNode): boolean {
-  return getChildrenArrays(node).length > 0;
-}
-
-// Check if a node is navigable (has a number property)
-function isNavigable(node: GenericNode): boolean {
-  return typeof node.number === "string" && node.number.length > 0;
-}
-
-// Get display label for a node
-function getNodeLabel(node: GenericNode): string {
-  if (node.name && node.title) {
-    return `${node.name}: ${node.title}`;
-  }
-  if (node.name) {
-    return node.name;
-  }
-  if (node.title) {
-    return node.title;
-  }
-  if (node.number) {
-    return `المادة ${node.number}`;
-  }
-  return "عنصر";
-}
-
-// Recursively find a node by its number and collect path info
-interface FindResult {
-  node: GenericNode;
-  path: GenericNode[]; // Ancestors from root to parent
-}
-
-function findNodeByNumber(
-  root: GenericNode,
-  targetNumber: string,
-  path: GenericNode[] = []
-): FindResult | null {
-  // Check if current node matches
-  if (root.number === targetNumber) {
-    return { node: root, path };
-  }
-
-  // Search in all children arrays
-  const childrenArrays = getChildrenArrays(root);
-  for (const { children } of childrenArrays) {
-    for (const child of children) {
-      const result = findNodeByNumber(child, targetNumber, [...path, root]);
-      if (result) {
-        return result;
-      }
-    }
-  }
-
-  return null;
-}
-
-// Collect all navigable nodes (nodes with number) in order
-function collectNavigableNodes(node: GenericNode, result: GenericNode[] = []): GenericNode[] {
-  if (isNavigable(node)) {
-    result.push(node);
-  }
-
-  const childrenArrays = getChildrenArrays(node);
-  for (const { children } of childrenArrays) {
-    for (const child of children) {
-      collectNavigableNodes(child, result);
-    }
-  }
-
-  return result;
-}
+import {
+  loadBookData,
+  findNodeByNumber,
+  collectNavigableNodes,
+  getChildrenArrays,
+  hasChildren,
+  isNavigable,
+  getNodeLabel,
+  generateNodePath,
+  type GenericNode,
+  type FindResult,
+} from "@/lib/data-loader";
+import { getLawSource, getArticleLabel } from "@/lib/law-sources";
 
 // Tree node component for rendering children of an article
 function ChildTreeNode({
   node,
+  lawKey,
   bookId,
   depth = 0,
 }: {
   node: GenericNode;
+  lawKey: string;
   bookId: string;
   depth?: number;
 }) {
@@ -156,7 +43,8 @@ function ChildTreeNode({
   const childrenArrays = getChildrenArrays(node);
   const nodeHasChildren = childrenArrays.length > 0;
   const nodeIsNavigable = isNavigable(node);
-  const label = getNodeLabel(node);
+  const label = getNodeLabel(node, lawKey);
+  const articleLabel = getArticleLabel(lawKey);
 
   const depthStyles = [
     "text-base font-semibold text-foreground",
@@ -186,12 +74,12 @@ function ChildTreeNode({
         <div className="flex-1 min-w-0">
           {nodeIsNavigable ? (
             <Link
-              href={`/${bookId}/${node.number}`}
+              href={`/${lawKey}/${bookId}/${node.number}`}
               className={`block hover:text-primary transition-colors ${textStyle}`}
             >
               <div className="flex items-center gap-2">
                 <FileText className="h-4 w-4 shrink-0 text-primary" />
-                <span>المادة {node.number}</span>
+                <span>{articleLabel} {node.number}</span>
               </div>
             </Link>
           ) : (
@@ -208,6 +96,7 @@ function ChildTreeNode({
                 <ChildTreeNode
                   key={`${key}-${index}-${child.number || child.name || index}`}
                   node={child}
+                  lawKey={lawKey}
                   bookId={bookId}
                   depth={depth + 1}
                 />
@@ -222,6 +111,7 @@ function ChildTreeNode({
 
 export default function ArticlePage() {
   const params = useParams();
+  const lawKey = params.lawKey as string;
   const bookId = params.bookId as string;
   const articleNumber = params.articleNumber as string;
 
@@ -235,7 +125,7 @@ export default function ArticlePage() {
   }>({ prev: null, next: null });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Global search
   const { search } = useGlobalSearch();
 
@@ -248,64 +138,97 @@ export default function ArticlePage() {
     },
   });
 
-  // Load book and find article using static imports
+  // Load book and find article
   useEffect(() => {
     setLoading(true);
     setError(null);
 
-    const book = bookDataMap[bookId];
-    if (!book) {
-      setError("الكتاب غير موجود");
-      setLoading(false);
-      return;
-    }
+    loadBookData(lawKey, bookId)
+      .then((book) => {
+        if (!book) {
+          setError("الكتاب غير موجود");
+          setLoading(false);
+          return;
+        }
 
-    setBookData(book);
+        setBookData(book);
 
-    // Find the article by number
-    const result = findNodeByNumber(book, articleNumber);
-    if (!result) {
-      setError("المادة غير موجودة");
-      setLoading(false);
-      return;
-    }
+        // Find the article by number
+        const result = findNodeByNumber(book, articleNumber);
+        if (!result) {
+          setError("المادة غير موجودة");
+          setLoading(false);
+          return;
+        }
 
-    setArticleData(result);
+        setArticleData(result);
 
-    // Build navigation (prev/next)
-    const allNavigable = collectNavigableNodes(book);
-    const currentIndex = allNavigable.findIndex((n) => n.number === articleNumber);
-    setNavigation({
-      prev: currentIndex > 0 ? allNavigable[currentIndex - 1] : null,
-      next: currentIndex < allNavigable.length - 1 ? allNavigable[currentIndex + 1] : null,
-    });
+        // Build navigation (prev/next)
+        const allNavigable = collectNavigableNodes(book);
+        const currentIndex = allNavigable.findIndex(
+          (n) => n.number === articleNumber
+        );
+        setNavigation({
+          prev: currentIndex > 0 ? allNavigable[currentIndex - 1] : null,
+          next:
+            currentIndex < allNavigable.length - 1
+              ? allNavigable[currentIndex + 1]
+              : null,
+        });
 
-    setLoading(false);
-  }, [bookId, articleNumber]);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error loading article:", err);
+        setError("حدث خطأ أثناء تحميل المادة");
+        setLoading(false);
+      });
+  }, [lawKey, bookId, articleNumber]);
+
+  // Get law source info
+  const lawSource = getLawSource(lawKey);
+  const articleLabel = getArticleLabel(lawKey);
 
   // Navigation items for sidebar
   const navItems = [
-    { id: "book_0", label: "أحكام تمهيدية", href: "/book_0", children: [] },
-    { id: "book_1", label: "الكتاب الأول", href: "/book_1", children: [] },
-    { id: "book_2", label: "الكتاب الثاني", href: "/book_2", children: [] },
-    { id: "book_3", label: "الكتاب الثالث", href: "/book_3", children: [] },
-    { id: "book_4", label: "الكتاب الرابع", href: "/book_4", children: [] },
-    { id: "book_5", label: "الكتاب الخامس", href: "/book_5", children: [] },
-    { id: "book_6", label: "الكتاب السادس", href: "/book_6", children: [] },
-    { id: "book_7", label: "الكتاب السابع", href: "/book_7", children: [] },
-    { id: "book_8", label: "الكتاب الثامن", href: "/book_8", children: [] },
+    {
+      id: "cpp",
+      label: "قانون المسطرة الجنائية",
+      href: "/cpp",
+      children: [],
+    },
+    {
+      id: "dp",
+      label: "القانون الجنائي",
+      href: "/dp",
+      children: [],
+    },
   ];
 
-  // Build breadcrumb from path
+  // Build breadcrumb from path with contextual navigation
+  // For non-navigable nodes (Part/Chapter/Section), link to book page with expand param
   const breadcrumbItems = articleData
     ? [
-        ...articleData.path.map((node) => ({
-          label: getNodeLabel(node),
-          href: isNavigable(node) ? `/${bookId}/${node.number}` : `/${bookId}`,
-        })),
+        ...articleData.path.map((node, index) => {
+          // Use the actual path indices from findNodeByNumber
+          // pathIndices[0..index] gives us the path to this ancestor
+          // We skip index 0 because that's the book itself (root)
+          const nodePathIndices = articleData.pathIndices.slice(0, index);
+          
+          return {
+            label: getNodeLabel(node, lawKey),
+            href: isNavigable(node)
+              ? `/${lawKey}/${bookId}/${node.number}`
+              : nodePathIndices.length > 0
+                ? `/${lawKey}/${bookId}?expand=${generateNodePath(nodePathIndices)}`
+                : `/${lawKey}/${bookId}`,
+            isNavigable: isNavigable(node),
+          };
+        }),
         {
-          label: `المادة ${articleNumber}`,
-          href: `/${bookId}/${articleNumber}`,
+          label: `${articleLabel} ${articleNumber}`,
+          href: `/${lawKey}/${bookId}/${articleNumber}`,
+          isNavigable: true,
         },
       ]
     : [];
@@ -323,6 +246,7 @@ export default function ArticlePage() {
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
           navItems={navItems}
+          lawKey={lawKey}
         />
 
         <main className="flex-1 sidebar-margin">
@@ -334,13 +258,19 @@ export default function ArticlePage() {
                 <span>الرئيسية</span>
               </Link>
               <ChevronLeft className="h-4 w-4" />
-              <Link href={`/${bookId}`} className="hover:text-primary">
-                {bookData ? getNodeLabel(bookData) : "الكتاب"}
+              {lawSource && (
+                <Link href={`/${lawKey}`} className="hover:text-primary">
+                  {lawSource.label}
+                </Link>
+              )}
+              <ChevronLeft className="h-4 w-4" />
+              <Link href={`/${lawKey}/${bookId}`} className="hover:text-primary">
+                {bookData ? getNodeLabel(bookData, lawKey) : "الكتاب"}
               </Link>
               {breadcrumbItems.slice(1, -1).map((item, index) => (
                 <span key={index} className="flex items-center gap-2">
                   <ChevronLeft className="h-4 w-4" />
-                  {item.href !== `/${bookId}` ? (
+                  {item.href !== `/${lawKey}/${bookId}` ? (
                     <Link href={item.href} className="hover:text-primary">
                       {item.label}
                     </Link>
@@ -350,7 +280,7 @@ export default function ArticlePage() {
                 </span>
               ))}
               <ChevronLeft className="h-4 w-4" />
-              <span className="text-foreground">المادة {articleNumber}</span>
+              <span className="text-foreground">{articleLabel} {articleNumber}</span>
             </nav>
 
             {/* Content */}
@@ -361,7 +291,10 @@ export default function ArticlePage() {
             ) : error ? (
               <div className="text-center py-12">
                 <p className="text-destructive text-lg">{error}</p>
-                <Link href={`/${bookId}`} className="text-primary hover:underline mt-4 inline-block">
+                <Link
+                  href={`/${lawKey}/${bookId}`}
+                  className="text-primary hover:underline mt-4 inline-block"
+                >
                   العودة للكتاب
                 </Link>
               </div>
@@ -377,9 +310,11 @@ export default function ArticlePage() {
                     bookTitle={bookData?.name}
                     chapterTitle={
                       articleData.path.length > 0
-                        ? getNodeLabel(articleData.path[articleData.path.length - 1])
+                        ? getNodeLabel(articleData.path[articleData.path.length - 1], lawKey)
                         : undefined
                     }
+                    articleLabel={articleLabel}
+                    lawLabel={lawSource?.label}
                   />
 
                   {/* If this article has children, render them */}
@@ -393,6 +328,7 @@ export default function ArticlePage() {
                               <ChildTreeNode
                                 key={`${key}-${index}-${child.number || child.name || index}`}
                                 node={child}
+                                lawKey={lawKey}
                                 bookId={bookId}
                                 depth={0}
                               />
@@ -404,8 +340,35 @@ export default function ArticlePage() {
                   )}
                 </div>
 
-                {/* Navigation */}
-                <ArticleNav
+                {/* Desktop Navigation */}
+                <div className="hidden md:block">
+                  <ArticleNav
+                    navigation={{
+                      current: {
+                        number: articleNumber,
+                        bookId: bookId,
+                      },
+                      previous: navigation.prev
+                        ? {
+                            number: navigation.prev.number || "",
+                            bookId: bookId,
+                            href: `/${lawKey}/${bookId}/${navigation.prev.number}`,
+                          }
+                        : undefined,
+                      next: navigation.next
+                        ? {
+                            number: navigation.next.number || "",
+                            bookId: bookId,
+                            href: `/${lawKey}/${bookId}/${navigation.next.number}`,
+                          }
+                        : undefined,
+                    }}
+                    articleLabel={articleLabel}
+                  />
+                </div>
+
+                {/* Mobile Sticky Bottom Navigation */}
+                <MobileArticleNav
                   navigation={{
                     current: {
                       number: articleNumber,
@@ -415,17 +378,18 @@ export default function ArticlePage() {
                       ? {
                           number: navigation.prev.number || "",
                           bookId: bookId,
-                          href: `/${bookId}/${navigation.prev.number}`,
+                          href: `/${lawKey}/${bookId}/${navigation.prev.number}`,
                         }
                       : undefined,
                     next: navigation.next
                       ? {
                           number: navigation.next.number || "",
                           bookId: bookId,
-                          href: `/${bookId}/${navigation.next.number}`,
+                          href: `/${lawKey}/${bookId}/${navigation.next.number}`,
                         }
                       : undefined,
                   }}
+                  articleLabel={articleLabel}
                 />
               </div>
             ) : null}
@@ -435,7 +399,11 @@ export default function ArticlePage() {
         </main>
       </div>
 
-      <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} onSearch={search} />
+      <SearchModal
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+        onSearch={search}
+      />
     </div>
   );
 }

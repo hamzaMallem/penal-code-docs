@@ -53,11 +53,24 @@ export interface Law {
 }
 
 /**
+ * Law source configuration
+ * إعدادات مصدر القانون
+ */
+export interface LawSource {
+  key: string;           // Unique identifier - e.g., "cpp", "dp"
+  label: string;         // Display name in Arabic - e.g., "قانون المسطرة الجنائية"
+  path: string;          // Data path - e.g., "data/cpp"
+  description?: string;  // Optional description
+  articleLabel: string;  // Article label - "المادة" for cpp, "الفصل" for dp
+}
+
+/**
  * Search result item
  * عنصر نتيجة البحث
  */
 export interface SearchResult {
   articleNumber: string;
+  lawKey: string;        // Law source key - e.g., "code_procedure_penale"
   bookName: string;
   chapterName: string;
   sectionName?: string;

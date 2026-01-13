@@ -1,0 +1,16 @@
+
+> qanun-docs@0.1.0 dev
+> next dev
+
+⚠ Port 3000 is in use by process 19372, using available port 3001 instead.
+▲ Next.js 16.1.1 (Turbopack)
+- Local:         http://localhost:3001
+- Network:       http://10.210.189.223:3001
+
+✓ Starting...
+✓ Ready in 4s
+Persisting failed: Unable to commit operations
+
+Caused by:
+    0: Unable to write meta file 00000006.meta
+    1: Access is denied. (os error 5)

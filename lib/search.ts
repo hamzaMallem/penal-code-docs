@@ -3,6 +3,7 @@ import type { SearchResult } from "./types";
 
 interface SearchableArticle {
   articleNumber: string;
+  lawKey: string;
   bookName: string;
   bookId: string;
   chapterName: string;
@@ -69,6 +70,7 @@ export function searchArticles(query: string, limit: number = 20): SearchResult[
 
     return {
       articleNumber: item.articleNumber,
+      lawKey: item.lawKey,
       bookName: item.bookName,
       chapterName: item.chapterName,
       sectionName: item.sectionName,

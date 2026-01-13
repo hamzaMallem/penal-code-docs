@@ -29,15 +29,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ar" dir="rtl" suppressHydrationWarning>
-      <body className={`${ibmPlexSansArabic.variable} font-sans antialiased`}>
+    <html lang="ar" dir="rtl" suppressHydrationWarning className="overflow-x-hidden">
+      <body className={`${ibmPlexSansArabic.variable} font-sans antialiased overflow-x-hidden max-w-full`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          {/* Main wrapper to prevent horizontal overflow */}
+          <div className="relative w-full max-w-full overflow-x-hidden">
+            {children}
+          </div>
         </ThemeProvider>
       </body>
     </html>

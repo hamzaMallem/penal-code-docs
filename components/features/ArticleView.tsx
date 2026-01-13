@@ -3,6 +3,7 @@
 import { Copy, Check, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { cn } from "@/lib/utils";
 import type { Article, BreadcrumbItem } from "@/lib/types";
 
 interface ArticleViewProps {
@@ -11,19 +12,33 @@ interface ArticleViewProps {
   chapterTitle?: string;
   sectionTitle?: string;
   breadcrumbs?: BreadcrumbItem[];
+  articleLabel?: string; // "المادة" for cpp, "الفصل" for dp
+  lawLabel?: string; // Law name for sharing
 }
 
+/**
+ * ArticleView - Displays legal article content
+ * عرض المادة القانونية
+ * 
+ * Mobile Optimizations:
+ * - Increased line-height (1.9-2.1) for Arabic text readability
+ * - Larger font size on mobile
+ * - Better paragraph spacing
+ * - Max-width container for optimal reading
+ */
 export function ArticleView({
   article,
   bookTitle,
   chapterTitle,
   sectionTitle,
   breadcrumbs = [],
+  articleLabel = "المادة",
+  lawLabel = "قانون المسطرة الجنائية",
 }: ArticleViewProps) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
-    const text = `المادة ${article.number}\n\n${article.paragraphs.join("\n\n")}`;
+    const text = `${articleLabel} ${article.number}\n\n${article.paragraphs.join("\n\n")}`;
     await navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -32,7 +47,7 @@ export function ArticleView({
   const handleShare = async () => {
     if (navigator.share) {
       await navigator.share({
-        title: `المادة ${article.number} - قانون المسطرة الجنائية`,
+        title: `${articleLabel} ${article.number} - ${lawLabel}`,
         text: article.paragraphs[0],
         url: window.location.href,
       });
@@ -63,11 +78,15 @@ export function ArticleView({
       )}
 
       {/* Article Header */}
-      <header className="mb-8">
+      <header className="mb-6 md:mb-8">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">
-              المادة {article.number}
+            <h1 className={cn(
+              "font-bold text-foreground mb-2",
+              // Mobile: slightly smaller title
+              "text-2xl md:text-3xl"
+            )}>
+              {articleLabel} {article.number}
             </h1>
             {(bookTitle || chapterTitle || sectionTitle) && (
               <div className="text-sm text-muted-foreground space-y-1">
@@ -103,13 +122,35 @@ export function ArticleView({
         </div>
       </header>
 
-      {/* Article Content */}
-      <div className="article-content dark:prose-invert max-w-none">
+      {/* Article Content - Mobile Reading Mode */}
+      <div 
+        className={cn(
+          "article-content dark:prose-invert max-w-none",
+          // Mobile reading optimizations
+          "mobile-reading-mode"
+        )}
+      >
         {article.paragraphs.map((paragraph, index) => (
           <p
             key={index}
-            className="mb-4 leading-relaxed text-foreground"
-            style={{ fontSize: 'var(--font-size-base)' }}
+            className={cn(
+              "text-foreground",
+              // Base styles
+              "mb-4 md:mb-5",
+              // Mobile: Enhanced readability
+              // - Larger line-height for Arabic text
+              // - Slightly larger font
+              // - Better word spacing
+              "leading-[2] md:leading-relaxed",
+              "text-[17px] md:text-[18px]",
+              // Ensure proper text rendering
+              "text-right"
+            )}
+            style={{ 
+              fontSize: 'var(--font-size-base)',
+              // Mobile-specific overrides via CSS custom properties
+              wordSpacing: '0.05em',
+            }}
           >
             {paragraph}
           </p>

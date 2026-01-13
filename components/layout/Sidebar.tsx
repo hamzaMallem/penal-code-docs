@@ -1,26 +1,31 @@
 "use client";
 
-import { ChevronDown, ChevronLeft, Book } from "lucide-react";
+import { ChevronDown, ChevronLeft, Book, X, Minus, Plus, RotateCcw, Type } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useState, useEffect, useCallback, useRef } from "react";
 import type { NavItem } from "@/lib/types";
+import { getLawSource } from "@/lib/law-sources";
+import { useFontSize } from "@/hooks/useFontSize";
 
 interface SidebarProps {
   isOpen?: boolean;
   onClose?: () => void;
   navItems?: NavItem[];
   activeItemId?: string;
+  lawKey?: string;
 }
 
 interface NavItemComponentProps {
   item: NavItem;
   level?: number;
   activeItemId?: string;
+  onLinkClick?: () => void;
 }
 
 // DevDocs-style navigation item with improved RTL Arabic text handling
-function NavItemComponent({ item, level = 0, activeItemId }: NavItemComponentProps) {
+function NavItemComponent({ item, level = 0, activeItemId, onLinkClick }: NavItemComponentProps) {
   const [isExpanded, setIsExpanded] = useState(item.isExpanded ?? level === 0);
   const hasChildren = item.children && item.children.length > 0;
   const isActive = item.id === activeItemId;
@@ -41,6 +46,8 @@ function NavItemComponent({ item, level = 0, activeItemId }: NavItemComponentPro
             if (hasChildren) {
               e.preventDefault();
               setIsExpanded(!isExpanded);
+            } else {
+              onLinkClick?.();
             }
           }}
         >
@@ -83,6 +90,7 @@ function NavItemComponent({ item, level = 0, activeItemId }: NavItemComponentPro
                 item={child}
                 level={level + 1}
                 activeItemId={activeItemId}
+                onLinkClick={onLinkClick}
               />
             ))}
           </div>
@@ -109,6 +117,8 @@ function NavItemComponent({ item, level = 0, activeItemId }: NavItemComponentPro
           if (hasChildren) {
             e.preventDefault();
             setIsExpanded(!isExpanded);
+          } else {
+            onLinkClick?.();
           }
         }}
       >
@@ -151,6 +161,7 @@ function NavItemComponent({ item, level = 0, activeItemId }: NavItemComponentPro
               item={child}
               level={level + 1}
               activeItemId={activeItemId}
+              onLinkClick={onLinkClick}
             />
           ))}
         </div>
@@ -166,43 +177,308 @@ const DEFAULT_WIDTH = 280;
 const DESKTOP_BREAKPOINT = 1024;
 const STORAGE_KEY = "qanun-sidebar-width";
 
-export function Sidebar({ isOpen = true, onClose, navItems = [], activeItemId }: SidebarProps) {
+/**
+ * Reading Settings Component for Mobile Drawer
+ * إعدادات القراءة للقائمة الجانبية على الجوال
+ * 
+ * Features:
+ * - Large touch targets (48px min height)
+ * - RTL-aligned
+ * - Clear Arabic labels
+ * - Reuses existing useFontSize hook
+ */
+function ReadingSettings() {
+  const {
+    fontSize,
+    increaseFontSize,
+    decreaseFontSize,
+    resetFontSize,
+    canIncrease,
+    canDecrease,
+    config,
+    mounted,
+  } = useFontSize();
+
+  // Avoid hydration mismatch
+  if (!mounted) {
+    return (
+      <div className="px-4 py-3 border-t border-border">
+        <div className="flex items-center gap-2 mb-3">
+          <Type className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm font-medium text-muted-foreground">إعدادات القراءة</span>
+        </div>
+        <div className="flex items-center justify-between gap-2 opacity-50">
+          <div className="h-12 flex-1 bg-muted rounded-lg animate-pulse" />
+          <div className="h-12 flex-1 bg-muted rounded-lg animate-pulse" />
+          <div className="h-12 flex-1 bg-muted rounded-lg animate-pulse" />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="px-4 py-3 border-t border-border">
+      {/* Section Header */}
+      <div className="flex items-center gap-2 mb-3">
+        <Type className="h-4 w-4 text-primary" />
+        <span className="text-sm font-medium text-foreground">إعدادات القراءة</span>
+      </div>
+
+      {/* Current Size Indicator */}
+      <div className="text-xs text-muted-foreground mb-3 text-center">
+        حجم الخط: <span className="text-foreground font-medium">{config.label}</span> ({config.value})
+      </div>
+
+      {/* Font Size Controls - Large Touch Targets */}
+      <div className="flex items-center justify-between gap-2">
+        {/* Decrease Button */}
+        <Button
+          variant="outline"
+          onClick={decreaseFontSize}
+          disabled={!canDecrease}
+          className={cn(
+            "flex-1 min-h-[48px] flex flex-col items-center justify-center gap-1",
+            "transition-colors duration-150"
+          )}
+          aria-label="تصغير الخط"
+        >
+          <Minus className="h-5 w-5" />
+          <span className="text-xs">تصغير</span>
+        </Button>
+
+        {/* Reset Button */}
+        <Button
+          variant="outline"
+          onClick={resetFontSize}
+          className={cn(
+            "flex-1 min-h-[48px] flex flex-col items-center justify-center gap-1",
+            "transition-colors duration-150"
+          )}
+          aria-label="إعادة تعيين حجم الخط"
+        >
+          <RotateCcw className="h-5 w-5" />
+          <span className="text-xs">افتراضي</span>
+        </Button>
+
+        {/* Increase Button */}
+        <Button
+          variant="outline"
+          onClick={increaseFontSize}
+          disabled={!canIncrease}
+          className={cn(
+            "flex-1 min-h-[48px] flex flex-col items-center justify-center gap-1",
+            "transition-colors duration-150"
+          )}
+          aria-label="تكبير الخط"
+        >
+          <Plus className="h-5 w-5" />
+          <span className="text-xs">تكبير</span>
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Sidebar Content - shared between Desktop and Mobile
+ * محتوى الشريط الجانبي - مشترك بين سطح المكتب والجوال
+ */
+function SidebarContent({
+  navItems,
+  activeItemId,
+  lawKey,
+  width,
+  isDesktop,
+  onLinkClick,
+}: {
+  navItems: NavItem[];
+  activeItemId?: string;
+  lawKey?: string;
+  width: number;
+  isDesktop: boolean;
+  onLinkClick?: () => void;
+}) {
+  return (
+    <ScrollArea className="h-full">
+      {/* Header */}
+      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
+        <div className="px-4 py-3">
+          <h2 className="text-sm font-semibold text-foreground truncate">
+            {lawKey ? getLawSource(lawKey)?.label || "القوانين" : "القوانين"}
+          </h2>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {lawKey && getLawSource(lawKey)?.description
+              ? getLawSource(lawKey)!.description
+              : "منصة القوانين المغربية"}
+          </p>
+        </div>
+      </div>
+      
+      {/* Navigation */}
+      <nav className="p-2">
+        {navItems.length > 0 ? (
+          <div className="space-y-0.5">
+            {navItems.map((item) => (
+              <NavItemComponent
+                key={item.id}
+                item={item}
+                activeItemId={activeItemId}
+                onLinkClick={onLinkClick}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="px-3 py-8 text-center">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto mb-2" />
+            <p className="text-sm text-muted-foreground">
+              جاري تحميل القائمة...
+            </p>
+          </div>
+        )}
+      </nav>
+
+      {/* Footer */}
+      <div className="sticky bottom-0 bg-background/95 backdrop-blur border-t border-border px-4 py-2">
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <span>{navItems.length} كتاب</span>
+          {isDesktop && <span className="opacity-50">{width}px</span>}
+        </div>
+      </div>
+    </ScrollArea>
+  );
+}
+
+/**
+ * Mobile Drawer Sidebar
+ * الشريط الجانبي للجوال (درج)
+ * 
+ * OVERFLOW FIX:
+ * - Container has overflow-hidden to prevent translate-x-full from causing horizontal scroll
+ * - Drawer uses inset-0 + translate instead of right-0 positioning
+ */
+function MobileSidebar({
+  isOpen,
+  onClose,
+  navItems,
+  activeItemId,
+  lawKey,
+}: {
+  isOpen: boolean;
+  onClose?: () => void;
+  navItems: NavItem[];
+  activeItemId?: string;
+  lawKey?: string;
+}) {
+  // Lock body scroll when drawer is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
+  return (
+    <>
+      {/* Overlay - covers entire screen */}
+      <div
+        className={cn(
+          "fixed inset-0 z-40 bg-background/80 backdrop-blur-sm transition-opacity duration-300",
+          isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        )}
+        onClick={onClose}
+        aria-hidden="true"
+      />
+
+      {/* 
+        Drawer Container - CRITICAL for preventing horizontal overflow
+        This wrapper clips the drawer when it's translated off-screen
+      */}
+      <div 
+        className="fixed inset-0 z-50 overflow-hidden pointer-events-none"
+        aria-hidden={!isOpen}
+      >
+        {/* Drawer - slides from RIGHT (RTL) */}
+        <aside
+          className={cn(
+            // Position at right edge, full height
+            "absolute top-0 right-0 h-full w-full max-w-sm",
+            "bg-background border-l border-border shadow-xl",
+            // Smooth slide animation
+            "transition-transform duration-300 ease-out",
+            // Enable pointer events only when open
+            isOpen ? "translate-x-0 pointer-events-auto" : "translate-x-full"
+          )}
+          role="dialog"
+          aria-modal="true"
+          aria-label="القائمة الجانبية"
+        >
+          {/* Close button */}
+          <div className="absolute top-4 left-4 z-10">
+            <button
+              onClick={onClose}
+              className="p-2 rounded-full bg-muted hover:bg-accent transition-colors"
+              aria-label="إغلاق القائمة"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+
+          {/* Drawer content with top padding for close button */}
+          <div className="h-full pt-16 flex flex-col">
+            {/* Reading Settings - Mobile Only */}
+            <ReadingSettings />
+            
+            {/* Navigation Content */}
+            <div className="flex-1 min-h-0">
+              <SidebarContent
+                navItems={navItems}
+                activeItemId={activeItemId}
+                lawKey={lawKey}
+                width={DEFAULT_WIDTH}
+                isDesktop={false}
+                onLinkClick={onClose}
+              />
+            </div>
+          </div>
+        </aside>
+      </div>
+    </>
+  );
+}
+
+/**
+ * Desktop Sidebar with resizable splitter
+ * الشريط الجانبي لسطح المكتب مع إمكانية تغيير الحجم
+ */
+function DesktopSidebar({
+  navItems,
+  activeItemId,
+  lawKey,
+}: {
+  navItems: NavItem[];
+  activeItemId?: string;
+  lawKey?: string;
+}) {
   const [width, setWidth] = useState(DEFAULT_WIDTH);
   const [isResizing, setIsResizing] = useState(false);
-  const [isDesktop, setIsDesktop] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const startXRef = useRef(0);
   const startWidthRef = useRef(DEFAULT_WIDTH);
 
-  // Mount check for hydration
+  // Load saved width on mount
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // Check if we're on desktop (client-side only)
-  useEffect(() => {
-    if (!mounted) return;
-
-    const checkDesktop = () => {
-      const desktop = window.innerWidth >= DESKTOP_BREAKPOINT;
-      setIsDesktop(desktop);
-      
-      // Only load saved width on desktop
-      if (desktop) {
-        const savedWidth = localStorage.getItem(STORAGE_KEY);
-        if (savedWidth) {
-          const parsedWidth = parseInt(savedWidth, 10);
-          if (parsedWidth >= MIN_WIDTH && parsedWidth <= MAX_WIDTH) {
-            setWidth(parsedWidth);
-          }
-        }
+    const savedWidth = localStorage.getItem(STORAGE_KEY);
+    if (savedWidth) {
+      const parsedWidth = parseInt(savedWidth, 10);
+      if (parsedWidth >= MIN_WIDTH && parsedWidth <= MAX_WIDTH) {
+        setWidth(parsedWidth);
       }
-    };
-
-    checkDesktop();
-    window.addEventListener("resize", checkDesktop);
-    return () => window.removeEventListener("resize", checkDesktop);
-  }, [mounted]);
+    }
+  }, []);
 
   // Save width to localStorage
   const saveWidth = useCallback((newWidth: number) => {
@@ -211,29 +487,25 @@ export function Sidebar({ isOpen = true, onClose, navItems = [], activeItemId }:
 
   // Handle mouse down on splitter - START DRAG
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    if (!isDesktop) return;
     e.preventDefault();
     e.stopPropagation();
     
     startXRef.current = e.clientX;
     startWidthRef.current = width;
     setIsResizing(true);
-  }, [isDesktop, width]);
+  }, [width]);
 
   // Handle mouse move and mouse up - DRAG & END
   useEffect(() => {
-    if (!isResizing || !isDesktop) return;
+    if (!isResizing) return;
 
     const handleMouseMove = (e: MouseEvent) => {
       e.preventDefault();
       
       // RTL: drag LEFT = decrease width, drag RIGHT = increase width
-      // deltaX positive = moved right = increase width
-      // deltaX negative = moved left = decrease width
       const deltaX = e.clientX - startXRef.current;
       
       // In RTL, moving mouse to the right (positive deltaX) should DECREASE sidebar width
-      // because the splitter is on the LEFT side of the sidebar
       const newWidth = startWidthRef.current - deltaX;
       
       // Clamp to min/max
@@ -246,14 +518,11 @@ export function Sidebar({ isOpen = true, onClose, navItems = [], activeItemId }:
       saveWidth(width);
     };
 
-    // Attach to window for smooth dragging even outside the element
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseup", handleMouseUp);
     
-    // Set cursor and prevent text selection during drag
     document.body.style.cursor = "col-resize";
     document.body.style.userSelect = "none";
-    // Don't disable pointer events - it breaks the drag
 
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
@@ -261,126 +530,124 @@ export function Sidebar({ isOpen = true, onClose, navItems = [], activeItemId }:
       document.body.style.cursor = "";
       document.body.style.userSelect = "";
     };
-  }, [isResizing, isDesktop, width, saveWidth]);
+  }, [isResizing, width, saveWidth]);
 
   // Double-click to reset width
   const handleDoubleClick = useCallback(() => {
-    if (!isDesktop) return;
     setWidth(DEFAULT_WIDTH);
     saveWidth(DEFAULT_WIDTH);
-  }, [isDesktop, saveWidth]);
-
-  // Calculate sidebar width
-  const sidebarWidth = isDesktop ? width : DEFAULT_WIDTH;
+  }, [saveWidth]);
 
   return (
     <>
-      {/* Mobile overlay */}
-      {isOpen && !isDesktop && mounted && (
-        <div
-          className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm lg:hidden"
-          onClick={onClose}
-        />
-      )}
-
-      {/* Desktop Splitter - SEPARATE DOM ELEMENT between content and sidebar */}
-      {mounted && isDesktop && (
-        <div
+      {/* Splitter - positioned at the left edge of sidebar */}
+      <div
+        className={cn(
+          "fixed top-[60px] z-50 h-[calc(100vh-60px)] w-[6px] cursor-col-resize",
+          "flex items-center justify-center",
+          "hover:bg-primary/20 active:bg-primary/30",
+          "transition-colors duration-100",
+          isResizing && "bg-primary/30"
+        )}
+        style={{ right: `${width}px` }}
+        onMouseDown={handleMouseDown}
+        onDoubleClick={handleDoubleClick}
+        title="اسحب لتغيير العرض، انقر مرتين للإعادة"
+      >
+        <div 
           className={cn(
-            "fixed top-[60px] z-50 h-[calc(100vh-60px)] w-[6px] cursor-col-resize",
-            "flex items-center justify-center",
-            "hover:bg-primary/20 active:bg-primary/30",
-            "transition-colors duration-100",
-            isResizing && "bg-primary/30"
+            "w-[2px] h-8 rounded-full transition-all duration-100",
+            "bg-border",
+            isResizing && "h-16 bg-primary"
           )}
-          style={{ 
-            right: `${sidebarWidth}px`,
-          }}
-          onMouseDown={handleMouseDown}
-          onDoubleClick={handleDoubleClick}
-          title="اسحب لتغيير العرض، انقر مرتين للإعادة"
-        >
-          {/* Visual splitter line */}
-          <div 
-            className={cn(
-              "w-[2px] h-8 rounded-full transition-all duration-100",
-              "bg-border",
-              "group-hover:h-16 group-hover:bg-primary/50",
-              isResizing && "h-16 bg-primary"
-            )}
-          />
-        </div>
-      )}
+        />
+      </div>
       
       {/* Sidebar */}
       <aside
-        className={cn(
-          "fixed top-[60px] right-0 z-40 h-[calc(100vh-60px)] bg-background border-l border-border",
-          // Mobile: slide in/out
-          !isDesktop && "transition-transform duration-300",
-          !isDesktop && (isOpen ? "translate-x-0" : "translate-x-full"),
-          // Desktop: always visible
-          isDesktop && "translate-x-0"
-        )}
+        className="fixed top-[60px] right-0 z-40 h-[calc(100vh-60px)] bg-background border-l border-border"
         style={{ 
-          width: `${sidebarWidth}px`,
-          // Disable transition during resize for smooth dragging
-          transition: isResizing ? 'none' : undefined
+          width: `${width}px`,
+          transition: isResizing ? 'none' : 'width 0.15s ease-out'
         }}
       >
-        <ScrollArea className="h-full">
-          {/* Header */}
-          <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
-            <div className="px-4 py-3">
-              <h2 className="text-sm font-semibold text-foreground truncate">
-                قانون المسطرة الجنائية
-              </h2>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                القانون رقم 22.01
-              </p>
-            </div>
-          </div>
-          
-          {/* Navigation */}
-          <nav className="p-2">
-            {navItems.length > 0 ? (
-              <div className="space-y-0.5">
-                {navItems.map((item) => (
-                  <NavItemComponent
-                    key={item.id}
-                    item={item}
-                    activeItemId={activeItemId}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="px-3 py-8 text-center">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto mb-2" />
-                <p className="text-sm text-muted-foreground">
-                  جاري تحميل القائمة...
-                </p>
-              </div>
-            )}
-          </nav>
-
-          {/* Footer */}
-          <div className="sticky bottom-0 bg-background/95 backdrop-blur border-t border-border px-4 py-2">
-            <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span>{navItems.length} كتاب</span>
-              {mounted && isDesktop && <span className="opacity-50">{sidebarWidth}px</span>}
-            </div>
-          </div>
-        </ScrollArea>
+        <SidebarContent
+          navItems={navItems}
+          activeItemId={activeItemId}
+          lawKey={lawKey}
+          width={width}
+          isDesktop={true}
+        />
       </aside>
 
       {/* CSS variable for main content margin */}
-      {mounted && (
-        <style>{`
-          :root {
-            --sidebar-width: ${isDesktop ? sidebarWidth : 0}px;
-          }
-        `}</style>
-      )}
+      <style>{`
+        :root {
+          --sidebar-width: ${width}px;
+        }
+      `}</style>
     </>
+  );
+}
+
+/**
+ * Main Sidebar Component
+ * المكون الرئيسي للشريط الجانبي
+ * 
+ * - Desktop (>= 1024px): Static sidebar with resizable splitter
+ * - Mobile (< 1024px): Full-height drawer from right (RTL)
+ * 
+ * HYDRATION SAFETY:
+ * - Renders nothing during SSR (mounted = false)
+ * - Only determines viewport after client mount
+ * - No window/document access during render phase
+ */
+export function Sidebar({ isOpen = true, onClose, navItems = [], activeItemId, lawKey }: SidebarProps) {
+  // State: null = not yet determined (SSR/initial), true = desktop, false = mobile
+  const [viewportState, setViewportState] = useState<'loading' | 'mobile' | 'desktop'>('loading');
+
+  // Single useEffect for mount + viewport detection
+  // This ensures NO rendering happens until we know the viewport
+  useEffect(() => {
+    // Determine viewport on mount
+    const checkViewport = () => {
+      const isDesktopViewport = window.innerWidth >= DESKTOP_BREAKPOINT;
+      setViewportState(isDesktopViewport ? 'desktop' : 'mobile');
+    };
+
+    // Initial check
+    checkViewport();
+
+    // Listen for resize
+    window.addEventListener("resize", checkViewport);
+    return () => window.removeEventListener("resize", checkViewport);
+  }, []);
+
+  // CRITICAL: Render nothing until viewport is determined
+  // This prevents ANY hydration mismatch since SSR output = null, client initial = null
+  if (viewportState === 'loading') {
+    return null;
+  }
+
+  // Mobile: Full-screen drawer
+  if (viewportState === 'mobile') {
+    return (
+      <MobileSidebar
+        isOpen={isOpen}
+        onClose={onClose}
+        navItems={navItems}
+        activeItemId={activeItemId}
+        lawKey={lawKey}
+      />
+    );
+  }
+
+  // Desktop: Static sidebar with resizer
+  return (
+    <DesktopSidebar
+      navItems={navItems}
+      activeItemId={activeItemId}
+      lawKey={lawKey}
+    />
   );
 }
