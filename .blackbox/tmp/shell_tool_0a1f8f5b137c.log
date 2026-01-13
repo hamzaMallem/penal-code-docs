@@ -1,0 +1,15 @@
+
+> qanun-docs@0.1.0 dev
+> next dev
+
+▲ Next.js 16.1.1 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://10.239.158.223:3000
+
+✓ Starting...
+✓ Ready in 1996ms
+⚠ Cross origin request detected from 10.239.158.223 to /_next/* resource. In a future major version of Next.js, you will need to explicitly configure "allowedDevOrigins" in next.config to allow this.
+Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
+ GET / 200 in 2.7s (compile: 1766ms, render: 904ms)
+ GET / 200 in 2.7s (compile: 1877ms, render: 813ms)
+ GET / 200 in 367ms (compile: 82ms, render: 285ms)

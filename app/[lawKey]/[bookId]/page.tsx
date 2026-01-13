@@ -8,7 +8,7 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { Footer } from "@/components/layout/Footer";
 import { SearchModal } from "@/components/features/SearchModal";
 import { useKeyboardNav } from "@/hooks/useKeyboardNav";
-import { useGlobalSearch } from "@/hooks/useGlobalSearch";
+import { useLawSearch } from "@/hooks/useLawSearch";
 import { ChevronDown, ChevronLeft, FileText, Home } from "lucide-react";
 import {
   loadBookData,
@@ -264,8 +264,8 @@ export default function BookPage() {
     highlightPath: targetPath.length > 0 ? pathToKey(targetPath) : null,
   };
 
-  // Global search
-  const { search } = useGlobalSearch();
+  // Contextual search for this law
+  const { search } = useLawSearch(lawKey);
 
   // Keyboard navigation
   useKeyboardNav({
@@ -459,6 +459,7 @@ export default function BookPage() {
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
         onSearch={search}
+        searchScope={{ lawKey }}
       />
     </div>
   );

@@ -5,9 +5,12 @@ interface SearchableArticle {
   articleNumber: string;
   lawKey: string;
   bookName: string;
+  bookTitle: string;
   bookId: string;
   chapterName: string;
+  chapterTitle: string;
   sectionName?: string;
+  sectionTitle?: string;
   content: string;
 }
 
@@ -71,9 +74,13 @@ export function searchArticles(query: string, limit: number = 20): SearchResult[
     return {
       articleNumber: item.articleNumber,
       lawKey: item.lawKey,
+      bookId: item.bookId,
       bookName: item.bookName,
+      bookTitle: item.bookTitle,
       chapterName: item.chapterName,
+      chapterTitle: item.chapterTitle,
       sectionName: item.sectionName,
+      sectionTitle: item.sectionTitle,
       content: item.content,
       matchedText,
       score: result.score || 0,

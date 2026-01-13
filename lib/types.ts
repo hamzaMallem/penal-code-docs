@@ -70,10 +70,14 @@ export interface LawSource {
  */
 export interface SearchResult {
   articleNumber: string;
-  lawKey: string;        // Law source key - e.g., "code_procedure_penale"
+  lawKey: string;        // Law source key - e.g., "cpp", "dp"
+  bookId: string;        // Book ID for navigation - e.g., "book_1st", "code_book_0"
   bookName: string;
+  bookTitle: string;     // عنوان الكتاب - e.g., "التحري عن الجرائم ومعاينتها"
   chapterName: string;
+  chapterTitle: string;  // عنوان الباب - e.g., "سرية البحث والتحقيق"
   sectionName?: string;
+  sectionTitle?: string; // عنوان الفرع
   content: string;
   matchedText: string;
   score: number;

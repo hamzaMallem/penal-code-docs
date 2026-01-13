@@ -8,9 +8,12 @@ export function flattenArticles(law: Law) {
   const articles: {
     articleNumber: string;
     bookName: string;
+    bookTitle: string;
     bookId: string;
     chapterName: string;
+    chapterTitle: string;
     sectionName?: string;
+    sectionTitle?: string;
     content: string;
   }[] = [];
 
@@ -24,8 +27,10 @@ export function flattenArticles(law: Law) {
           articles.push({
             articleNumber: article.number,
             bookName: book.name,
+            bookTitle: book.title,
             bookId,
             chapterName: chapter.name,
+            chapterTitle: chapter.title,
             content: article.paragraphs.join(" "),
           });
         });
@@ -33,7 +38,7 @@ export function flattenArticles(law: Law) {
 
       // Articles in sections
       if (chapter.sections) {
-        processSection(chapter.sections, book.name, bookId, chapter.name, articles);
+        processSection(chapter.sections, book.name, book.title, bookId, chapter.name, chapter.title, articles);
       }
     });
   });
@@ -48,38 +53,50 @@ export function flattenArticles(law: Law) {
 function processSection(
   sections: Section[],
   bookName: string,
+  bookTitle: string,
   bookId: string,
   chapterName: string,
+  chapterTitle: string,
   articles: {
     articleNumber: string;
     bookName: string;
+    bookTitle: string;
     bookId: string;
     chapterName: string;
+    chapterTitle: string;
     sectionName?: string;
+    sectionTitle?: string;
     content: string;
   }[],
-  parentSectionName?: string
+  parentSectionName?: string,
+  parentSectionTitle?: string
 ) {
   sections.forEach((section) => {
     const sectionName = parentSectionName
       ? `${parentSectionName} - ${section.name}`
       : section.name;
+    const sectionTitle = parentSectionTitle
+      ? `${parentSectionTitle} - ${section.title}`
+      : section.title;
 
     if (section.articles) {
       section.articles.forEach((article) => {
         articles.push({
           articleNumber: article.number,
           bookName,
+          bookTitle,
           bookId,
           chapterName,
+          chapterTitle,
           sectionName,
+          sectionTitle,
           content: article.paragraphs.join(" "),
         });
       });
     }
 
     if (section.subsections) {
-      processSection(section.subsections, bookName, bookId, chapterName, articles, sectionName);
+      processSection(section.subsections, bookName, bookTitle, bookId, chapterName, chapterTitle, articles, sectionName, sectionTitle);
     }
   });
 }

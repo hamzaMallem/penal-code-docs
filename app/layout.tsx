@@ -48,7 +48,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ar" dir="rtl" suppressHydrationWarning className="overflow-x-hidden">
+    <html lang="ar" dir="rtl" className="overflow-x-hidden">
       <head>
         {/* PWA Apple Touch Icons */}
         <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192x192.png" />
@@ -58,7 +58,10 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
-      <body className={`${ibmPlexSansArabic.variable} font-sans antialiased overflow-x-hidden max-w-full`}>
+      <body 
+        suppressHydrationWarning
+        className={`${ibmPlexSansArabic.variable} font-sans antialiased overflow-x-hidden max-w-full`}
+      >
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"

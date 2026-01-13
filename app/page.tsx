@@ -1,78 +1,21 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Footer } from "@/components/layout/Footer";
 import { SearchModal } from "@/components/features/SearchModal";
 import { useKeyboardNav } from "@/hooks/useKeyboardNav";
+import { useGlobalSearch } from "@/hooks/useGlobalSearch";
 import { Book, Scale, Search, FileText, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import Fuse from "fuse.js";
-import type { SearchResult } from "@/lib/types";
 import { getLawSources } from "@/lib/law-sources";
 import {
   loadBookData,
   findFirstArticle,
-  getChildrenArrays,
-  isNavigable,
   getNodeLabel,
   getAvailableBookIds,
-  type GenericNode,
 } from "@/lib/data-loader";
-
-// Searchable article interface
-interface SearchableArticle {
-  articleNumber: string;
-  lawKey: string;
-  bookId: string;
-  bookName: string;
-  chapterName: string;
-  sectionName?: string;
-  content: string;
-}
-
-// Extract all articles from a node recursively
-function extractArticles(
-  node: GenericNode,
-  lawKey: string,
-  bookId: string,
-  bookName: string,
-  path: string[] = []
-): SearchableArticle[] {
-  const articles: SearchableArticle[] = [];
-
-  // Check if this node is an article
-  if (node.number && node.paragraphs) {
-    const content = node.paragraphs.join(" ");
-    articles.push({
-      articleNumber: node.number,
-      lawKey,
-      bookId,
-      bookName,
-      chapterName: path[0] || bookName,
-      sectionName: path.slice(1).join(" > ") || undefined,
-      content,
-    });
-  }
-
-  // Recursively process children
-  const childrenKeys = ["chapters", "sections", "branches", "articles", "subsections"];
-  for (const key of childrenKeys) {
-    const children = node[key] as GenericNode[] | undefined;
-    if (children && Array.isArray(children)) {
-      for (const child of children) {
-        const childPath =
-          child.name || child.title
-            ? [...path, `${child.name || ""} ${child.title || ""}`.trim()]
-            : path;
-        articles.push(...extractArticles(child, lawKey, bookId, bookName, childPath));
-      }
-    }
-  }
-
-  return articles;
-}
 
 export default function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -81,6 +24,9 @@ export default function Home() {
     Record<string, { id: string; name: string; firstArticle?: string }[]>
   >({});
   const [loading, setLoading] = useState(true);
+
+  // Use centralized global search
+  const { search, totalArticles } = useGlobalSearch();
 
   // Load all books for all law sources
   useEffect(() => {
@@ -122,95 +68,6 @@ export default function Home() {
 
     loadAllBooks();
   }, []);
-
-  // Build searchable articles from all law sources
-  const searchableArticles = useMemo(() => {
-    const allArticles: SearchableArticle[] = [];
-
-    const loadArticles = async () => {
-      const lawSources = getLawSources();
-
-      for (const lawSource of lawSources) {
-        const books = lawBooks[lawSource.key] || [];
-
-        for (const book of books) {
-          try {
-            const bookData = await loadBookData(lawSource.key, book.id);
-            if (bookData) {
-              const bookArticles = extractArticles(
-                bookData,
-                lawSource.key,
-                book.id,
-                book.name
-              );
-              allArticles.push(...bookArticles);
-            }
-          } catch {
-            // Skip if book fails to load
-          }
-        }
-      }
-    };
-
-    loadArticles();
-    return allArticles;
-  }, [lawBooks]);
-
-  // Initialize Fuse.js search engine
-  const fuse = useMemo(() => {
-    return new Fuse(searchableArticles, {
-      keys: [
-        { name: "articleNumber", weight: 2 },
-        { name: "content", weight: 1 },
-      ],
-      threshold: 0.3,
-      minMatchCharLength: 2,
-      includeScore: true,
-      includeMatches: true,
-      findAllMatches: true,
-      ignoreLocation: true,
-    });
-  }, [searchableArticles]);
-
-  // Search function to pass to SearchModal
-  const handleSearch = useCallback((query: string): SearchResult[] => {
-    if (query.length < 2) {
-      return [];
-    }
-
-    const results = fuse.search(query, { limit: 20 });
-
-    return results.map((result) => {
-      const item = result.item;
-      const matches = result.matches || [];
-
-      // Extract matched text with context
-      let matchedText = item.content;
-      if (matches.length > 0) {
-        const contentMatch = matches.find((m) => m.key === "content");
-        if (contentMatch && contentMatch.indices && contentMatch.indices.length > 0) {
-          const [start, end] = contentMatch.indices[0];
-          const contextStart = Math.max(0, start - 50);
-          const contextEnd = Math.min(item.content.length, end + 100);
-          matchedText =
-            (contextStart > 0 ? "..." : "") +
-            item.content.slice(contextStart, contextEnd) +
-            (contextEnd < item.content.length ? "..." : "");
-        }
-      }
-
-      return {
-        articleNumber: item.articleNumber,
-        lawKey: item.lawKey,
-        bookName: item.bookId,
-        chapterName: item.chapterName,
-        sectionName: item.sectionName,
-        content: item.content,
-        matchedText,
-        score: result.score || 0,
-      };
-    });
-  }, [fuse]);
 
   // Keyboard navigation
   useKeyboardNav({
@@ -271,29 +128,75 @@ export default function Home() {
                 </div>
               </div>
 
+              <p className="text-sm text-muted-foreground mb-2">
+                بسم الله الرحمن الرحيم
+              </p>
+
               <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
                 قانون دوكس
               </h1>
 
-              <p className="text-xl text-muted-foreground mb-2">
-                منصة القوانين المغربية
+              {/* Mobile Hero Text */}
+              <p className="text-lg text-muted-foreground mb-2 md:hidden">
+                موسوعة رقمية لتصفح
+                <br />
+                قانون المسطرة الجنائية
+                <br />
+                والقانون الجنائي المغربي
+               
               </p>
 
-              <p className="text-lg text-muted-foreground mb-8">
-                تصفح القوانين المغربية مع بحث فوري وتنقل سهل
+              <p className="text-sm text-muted-foreground mb-6 md:hidden">
+                بحث ذكي · تنقّل مبسّط · قراءة مريحة
               </p>
 
-              <Button
-                size="lg"
-                onClick={() => setIsSearchOpen(true)}
-                className="gap-2"
-              >
-                <Search className="h-5 w-5" />
-                ابدأ البحث
-                <kbd className="mr-2 px-2 py-0.5 bg-primary-foreground/20 rounded text-xs">
-                  ⌘K
-                </kbd>
-              </Button>
+              {/* Desktop Hero Text */}
+              <p className="text-xl text-muted-foreground mb-2 hidden md:block">
+                مرحبًا بكم في موسوعة قانون دوكس
+              </p>
+
+              <p className="text-lg text-muted-foreground mb-8 leading-relaxed hidden md:block">
+                منصة رقمية متخصصة في عرض وتصفح
+                <br />
+                قانون المسطرة الجنائية ومجموعة القانون الجنائي المغربي،
+                <br />
+                  في إطار مشروع تحديث تشريعي شامل،  أقرّه المشرّع المغربي بالقانون رقم 03.23.
+                <br />
+               
+             
+                <br />
+                مع بحث ذكي وتنقّل مبسّط وتجربة قراءة مريحة.
+              </p>
+
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                <Button
+                  size="lg"
+                  onClick={() => setIsSearchOpen(true)}
+                  className="gap-2"
+                >
+                  <Search className="h-5 w-5" />
+                  ابدأ البحث
+                  <kbd className="mr-2 px-2 py-0.5 bg-primary-foreground/20 rounded text-xs">
+                    ⌘K
+                  </kbd>
+                </Button>
+
+                <Button
+                  size="lg"
+                  variant="ghost"
+                  asChild
+                >
+                  <a href="/about">
+                    حول المنصة
+                  </a>
+                </Button>
+              </div>
+
+              {totalArticles > 0 && (
+                <p className="text-sm text-muted-foreground mt-4">
+                  ابحث في جميع مواد وفصول القانون الجنائي المغربي بصيغته المحيّنة
+                </p>
+              )}
             </section>
 
             {/* Law Collections */}
@@ -387,7 +290,8 @@ export default function Home() {
       <SearchModal
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
-        onSearch={handleSearch}
+        onSearch={search}
+        searchScope="global"
       />
     </div>
   );

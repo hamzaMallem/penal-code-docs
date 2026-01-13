@@ -296,9 +296,21 @@ export interface SearchableArticle {
   lawKey: string;
   bookId: string;
   bookName: string;
+  bookTitle: string;
   chapterName: string;
+  chapterTitle: string;
   sectionName?: string;
+  sectionTitle?: string;
   content: string;
+}
+
+/**
+ * Path info for tracking names and titles
+ * معلومات المسار لتتبع الأسماء والعناوين
+ */
+interface PathInfo {
+  name: string;
+  title: string;
 }
 
 /**
@@ -310,20 +322,27 @@ export function extractArticles(
   lawKey: string,
   bookId: string,
   bookName: string,
-  path: string[] = []
+  bookTitle: string = "",
+  path: PathInfo[] = []
 ): SearchableArticle[] {
   const articles: SearchableArticle[] = [];
 
   // Check if this node is an article
   if (node.number && node.paragraphs) {
     const content = node.paragraphs.join(" ");
+    const chapterInfo = path[0] || { name: bookName, title: bookTitle };
+    const sectionPath = path.slice(1);
+    
     articles.push({
       articleNumber: node.number,
       lawKey,
       bookId,
       bookName,
-      chapterName: path[0] || bookName,
-      sectionName: path.slice(1).join(" > ") || undefined,
+      bookTitle,
+      chapterName: chapterInfo.name,
+      chapterTitle: chapterInfo.title,
+      sectionName: sectionPath.length > 0 ? sectionPath.map(p => p.name).join(" > ") : undefined,
+      sectionTitle: sectionPath.length > 0 ? sectionPath.map(p => p.title).join(" > ") : undefined,
       content,
     });
   }
@@ -335,10 +354,10 @@ export function extractArticles(
       for (const child of children) {
         const childPath =
           child.name || child.title
-            ? [...path, `${child.name || ""} ${child.title || ""}`.trim()]
+            ? [...path, { name: child.name || "", title: child.title || "" }]
             : path;
         articles.push(
-          ...extractArticles(child, lawKey, bookId, bookName, childPath)
+          ...extractArticles(child, lawKey, bookId, bookName, bookTitle, childPath)
         );
       }
     }
@@ -366,12 +385,14 @@ export async function getAllSearchableArticles(): Promise<
     for (const bookId of bookIds) {
       const bookData = await loadBookData(lawSource.key, bookId);
       if (bookData) {
-        const bookName = getNodeLabel(bookData, lawSource.key);
+        const bookName = bookData.name || getNodeLabel(bookData, lawSource.key);
+        const bookTitle = bookData.title || "";
         const bookArticles = extractArticles(
           bookData,
           lawSource.key,
           bookId,
-          bookName
+          bookName,
+          bookTitle
         );
         allArticles.push(...bookArticles);
       }

@@ -11,7 +11,7 @@ import { ArticleView } from "@/components/features/ArticleView";
 import { ArticleNav } from "@/components/features/ArticleNav";
 import { MobileArticleNav } from "@/components/features/MobileArticleNav";
 import { useKeyboardNav } from "@/hooks/useKeyboardNav";
-import { useGlobalSearch } from "@/hooks/useGlobalSearch";
+import { useLawSearch } from "@/hooks/useLawSearch";
 import { ChevronLeft, Home, ChevronDown, FileText } from "lucide-react";
 import {
   loadBookData,
@@ -126,8 +126,8 @@ export default function ArticlePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Global search
-  const { search } = useGlobalSearch();
+  // Contextual search for this law
+  const { search } = useLawSearch(lawKey);
 
   // Keyboard navigation
   useKeyboardNav({
@@ -403,6 +403,7 @@ export default function ArticlePage() {
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
         onSearch={search}
+        searchScope={{ lawKey }}
       />
     </div>
   );
