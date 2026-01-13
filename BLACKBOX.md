@@ -1,4 +1,4 @@
-# CLAUDE.md - Qanun Docs Project
+# BLACKBOX.md — Qanun Docs Project
 
 ## 🎯 Project Overview
 

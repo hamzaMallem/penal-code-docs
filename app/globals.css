@@ -44,9 +44,27 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
+  
+  /* Legal Highlight - Gold for article numbers ONLY */
+  --color-legal-highlight: var(--legal-highlight);
+  --color-legal-highlight-foreground: var(--legal-highlight-foreground);
 }
 
-/* Light Mode - DevDocs Inspired */
+/* ==========================================================================
+   QANUN DOCS - Premium Legal Color System
+   نظام الألوان القانوني المتميز
+   
+   Design Strategy: HYBRID APPROACH
+   - Calm Contrast → Reading System (eye-friendly, low strain)
+   - Royal Modern → Brand & Accent System (trust, authority)
+   
+   STRICT RULES:
+   - Gold (#C5A059) ONLY for article numbers & legal markers
+   - No pure black (#000) or pure white (#FFF)
+   - WCAG AA compliant contrast ratios
+   ========================================================================== */
+
+/* Light Mode - Calm & Authoritative */
 :root {
   --radius: 0.625rem;
   
@@ -54,114 +72,178 @@
   --font-size-base: 18px;
   --font-size-scale: 1;
   
-  /* Background Colors */
-  --background: #FFFFFF;
-  --foreground: #1F2937;
+  /* =========================
+     CORE READING COLORS
+     ألوان القراءة الأساسية
+     ========================= */
   
-  /* Card Colors */
+  /* Background - Soft off-white for reduced eye strain */
+  --background: #F4F4F9;
+  --foreground: #2D3142;
+  
+  /* Card/Surface - Pure surface for content cards */
   --card: #FFFFFF;
-  --card-foreground: #1F2937;
+  --card-foreground: #2D3142;
   
-  /* Popover Colors */
+  /* Popover - Same as card for consistency */
   --popover: #FFFFFF;
-  --popover-foreground: #1F2937;
+  --popover-foreground: #2D3142;
   
-  /* Primary Colors */
-  --primary: #5C6BC0;
-  --primary-foreground: #FFFFFF;
+  /* =========================
+     BRAND COLORS
+     ألوان العلامة التجارية
+     ========================= */
   
-  /* Secondary Colors */
-  --secondary: #F5F5F5;
-  --secondary-foreground: #1F2937;
+  /* Primary - Deep authoritative blue (Royal Modern) */
+  --primary: #1B263B;
+  --primary-foreground: #F4F4F9;
   
-  /* Muted Colors */
-  --muted: #F5F5F5;
-  --muted-foreground: #6B7280;
+  /* Secondary - Subtle background variation */
+  --secondary: #E0E1DD;
+  --secondary-foreground: #2D3142;
   
-  /* Accent Colors */
-  --accent: #5C6BC0;
-  --accent-foreground: #FFFFFF;
+  /* =========================
+     UI COLORS
+     ألوان واجهة المستخدم
+     ========================= */
   
-  /* Destructive Colors */
-  --destructive: #EF4444;
+  /* Muted - For secondary text and disabled states */
+  --muted: #E0E1DD;
+  --muted-foreground: #4F5D75;
   
-  /* Border & Input Colors */
-  --border: #E5E7EB;
-  --input: #E5E7EB;
-  --ring: #5C6BC0;
+  /* Accent - For hover states and highlights */
+  --accent: #E0E1DD;
+  --accent-foreground: #1B263B;
   
-  /* Chart Colors */
-  --chart-1: #5C6BC0;
-  --chart-2: #7C4DFF;
-  --chart-3: #00BCD4;
-  --chart-4: #4CAF50;
-  --chart-5: #FF9800;
+  /* Destructive - Error states */
+  --destructive: #DC2626;
   
-  /* Sidebar Colors */
-  --sidebar: #F5F5F5;
-  --sidebar-foreground: #1F2937;
-  --sidebar-primary: #5C6BC0;
-  --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #E8EAF6;
-  --sidebar-accent-foreground: #1F2937;
-  --sidebar-border: #E5E7EB;
-  --sidebar-ring: #5C6BC0;
+  /* =========================
+     BORDER & INPUT
+     الحدود والمدخلات
+     ========================= */
+  --border: #E0E1DD;
+  --input: #E0E1DD;
+  --ring: #1B263B;
+  
+  /* =========================
+     LEGAL HIGHLIGHT (GOLD)
+     تمييز قانوني (ذهبي)
+     USE SPARINGLY - Article numbers only!
+     ========================= */
+  --legal-highlight: #C5A059;
+  --legal-highlight-foreground: #1B263B;
+  
+  /* =========================
+     CHART COLORS
+     ألوان الرسوم البيانية
+     ========================= */
+  --chart-1: #1B263B;
+  --chart-2: #4F5D75;
+  --chart-3: #C5A059;
+  --chart-4: #2D3142;
+  --chart-5: #A9B0C2;
+  
+  /* =========================
+     SIDEBAR COLORS
+     ألوان الشريط الجانبي
+     ========================= */
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #2D3142;
+  --sidebar-primary: #1B263B;
+  --sidebar-primary-foreground: #F4F4F9;
+  --sidebar-accent: #F4F4F9;
+  --sidebar-accent-foreground: #1B263B;
+  --sidebar-border: #E0E1DD;
+  --sidebar-ring: #1B263B;
 }
 
-/* Dark Mode - DevDocs Inspired */
+/* Dark Mode - Deep & Authoritative */
 .dark {
-  /* Background Colors */
-  --background: #1C1E26;
-  --foreground: #F8F8F2;
+  /* =========================
+     CORE READING COLORS
+     ألوان القراءة الأساسية
+     ========================= */
   
-  /* Card Colors */
-  --card: #282A36;
-  --card-foreground: #F8F8F2;
+  /* Background - Deep navy for reduced eye strain at night */
+  --background: #12161F;
+  --foreground: #E0E1DD;
   
-  /* Popover Colors */
-  --popover: #282A36;
-  --popover-foreground: #F8F8F2;
+  /* Card/Surface - Elevated surface */
+  --card: #1B263B;
+  --card-foreground: #E0E1DD;
   
-  /* Primary Colors */
-  --primary: #5C6BC0;
-  --primary-foreground: #FFFFFF;
+  /* Popover - Same as card */
+  --popover: #1B263B;
+  --popover-foreground: #E0E1DD;
   
-  /* Secondary Colors */
-  --secondary: #44475A;
-  --secondary-foreground: #F8F8F2;
+  /* =========================
+     BRAND COLORS
+     ألوان العلامة التجارية
+     ========================= */
   
-  /* Muted Colors */
-  --muted: #44475A;
-  --muted-foreground: #6272A4;
+  /* Primary - Muted blue for dark mode (less harsh) */
+  --primary: #4F5D75;
+  --primary-foreground: #E0E1DD;
   
-  /* Accent Colors */
-  --accent: #5C6BC0;
-  --accent-foreground: #FFFFFF;
+  /* Secondary - Subtle surface variation */
+  --secondary: #2A334A;
+  --secondary-foreground: #E0E1DD;
   
-  /* Destructive Colors */
-  --destructive: #FF5555;
+  /* =========================
+     UI COLORS
+     ألوان واجهة المستخدم
+     ========================= */
   
-  /* Border & Input Colors */
-  --border: #44475A;
-  --input: #44475A;
-  --ring: #5C6BC0;
+  /* Muted - For secondary text */
+  --muted: #2A334A;
+  --muted-foreground: #A9B0C2;
   
-  /* Chart Colors */
-  --chart-1: #5C6BC0;
-  --chart-2: #BD93F9;
-  --chart-3: #8BE9FD;
-  --chart-4: #50FA7B;
-  --chart-5: #FFB86C;
+  /* Accent - For hover states */
+  --accent: #2A334A;
+  --accent-foreground: #E0E1DD;
   
-  /* Sidebar Colors */
-  --sidebar: #282A36;
-  --sidebar-foreground: #F8F8F2;
-  --sidebar-primary: #5C6BC0;
-  --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #44475A;
-  --sidebar-accent-foreground: #F8F8F2;
-  --sidebar-border: #44475A;
-  --sidebar-ring: #5C6BC0;
+  /* Destructive - Error states */
+  --destructive: #EF4444;
+  
+  /* =========================
+     BORDER & INPUT
+     الحدود والمدخلات
+     ========================= */
+  --border: #2A334A;
+  --input: #2A334A;
+  --ring: #4F5D75;
+  
+  /* =========================
+     LEGAL HIGHLIGHT (GOLD)
+     تمييز قانوني (ذهبي)
+     Same gold works in dark mode
+     ========================= */
+  --legal-highlight: #C5A059;
+  --legal-highlight-foreground: #12161F;
+  
+  /* =========================
+     CHART COLORS
+     ألوان الرسوم البيانية
+     ========================= */
+  --chart-1: #4F5D75;
+  --chart-2: #A9B0C2;
+  --chart-3: #C5A059;
+  --chart-4: #E0E1DD;
+  --chart-5: #2A334A;
+  
+  /* =========================
+     SIDEBAR COLORS
+     ألوان الشريط الجانبي
+     ========================= */
+  --sidebar: #1B263B;
+  --sidebar-foreground: #E0E1DD;
+  --sidebar-primary: #4F5D75;
+  --sidebar-primary-foreground: #E0E1DD;
+  --sidebar-accent: #2A334A;
+  --sidebar-accent-foreground: #E0E1DD;
+  --sidebar-border: #2A334A;
+  --sidebar-ring: #4F5D75;
 }
 
 @layer base {
@@ -181,7 +263,7 @@
   }
 }
 
-/* Custom Scrollbar Styles */
+/* Custom Scrollbar Styles - Matches Legal Color System */
 @layer utilities {
   /* Webkit browsers (Chrome, Safari, Edge) */
   ::-webkit-scrollbar {
@@ -203,17 +285,17 @@
     background: var(--foreground);
   }
   
-  /* Dark mode scrollbar */
+  /* Dark mode scrollbar - Deep navy palette */
   .dark ::-webkit-scrollbar-track {
-    background: #282A36;
+    background: #1B263B;
   }
   
   .dark ::-webkit-scrollbar-thumb {
-    background: #44475A;
+    background: #2A334A;
   }
   
   .dark ::-webkit-scrollbar-thumb:hover {
-    background: #6272A4;
+    background: #4F5D75;
   }
   
   /* Firefox */
@@ -223,7 +305,7 @@
   }
   
   .dark * {
-    scrollbar-color: #44475A #282A36;
+    scrollbar-color: #2A334A #1B263B;
   }
 }
 
