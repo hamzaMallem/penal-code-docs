@@ -12,7 +12,8 @@ import { ArticleNav } from "@/components/features/ArticleNav";
 import { MobileArticleNav } from "@/components/features/MobileArticleNav";
 import { useKeyboardNav } from "@/hooks/useKeyboardNav";
 import { useLawSearch } from "@/hooks/useLawSearch";
-import { ChevronLeft, Home, ChevronDown, FileText } from "lucide-react";
+import { ChevronLeft, ChevronDown, FileText } from "lucide-react";
+import { LegalContextBar } from "@/components/features/LegalContextBar";
 import {
   loadBookData,
   findNodeByNumber,
@@ -251,37 +252,17 @@ export default function ArticlePage() {
 
         <main className="flex-1 sidebar-margin">
           <div className="container mx-auto px-4 py-8">
-            {/* Breadcrumb */}
-            <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-6 flex-wrap">
-              <Link href="/" className="hover:text-primary flex items-center gap-1">
-                <Home className="h-4 w-4" />
-                <span>الرئيسية</span>
-              </Link>
-              <ChevronLeft className="h-4 w-4" />
-              {lawSource && (
-                <Link href={`/${lawKey}`} className="hover:text-primary">
-                  {lawSource.label}
-                </Link>
-              )}
-              <ChevronLeft className="h-4 w-4" />
-              <Link href={`/${lawKey}/${bookId}`} className="hover:text-primary">
-                {bookData ? getNodeLabel(bookData, lawKey) : "الكتاب"}
-              </Link>
-              {breadcrumbItems.slice(1, -1).map((item, index) => (
-                <span key={index} className="flex items-center gap-2">
-                  <ChevronLeft className="h-4 w-4" />
-                  {item.href !== `/${lawKey}/${bookId}` ? (
-                    <Link href={item.href} className="hover:text-primary">
-                      {item.label}
-                    </Link>
-                  ) : (
-                    <span>{item.label}</span>
-                  )}
-                </span>
-              ))}
-              <ChevronLeft className="h-4 w-4" />
-              <span className="text-foreground">{articleLabel} {articleNumber}</span>
-            </nav>
+            {/* Legal context bar — replaces flat breadcrumb */}
+            <LegalContextBar
+              lawKey={lawKey}
+              lawLabel={lawSource?.label ?? lawKey}
+              lawHref={`/${lawKey}`}
+              bookName={bookData ? getNodeLabel(bookData, lawKey) : "الكتاب"}
+              bookHref={`/${lawKey}/${bookId}`}
+              articleLabel={articleLabel}
+              articleNumber={articleNumber}
+              ancestorPath={breadcrumbItems.slice(1, -1)}
+            />
 
             {/* Content */}
             {loading ? (

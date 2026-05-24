@@ -28,6 +28,27 @@ export const LAW_SOURCES: Record<string, LawSource> = {
     description: "القانون الجنائي المغربي",
     articleLabel: "الفصل",
   },
+  "dahir-1974-drogues": {
+    key: "dahir-1974-drogues",
+    label: "ظهير شريف بمثابة قانون رقم 1.73.282",
+    path: "data/dahir-1974-drogues",
+    description: "بتاريخ 28 ربيع الثاني 1394 (21 مايو 1974) يتعلق بزجر الإدمان على المخدرات السامة ووقاية المدمنين على هذه المخدرات",
+    articleLabel: "الفصل",
+  },
+  "loi-13-21": {
+    key: "loi-13-21",
+    label: "القانون رقم 13.21 المتعلق بالاستعمالات القانونية للقنب الهندي",
+    path: "data/loi-13-21",
+    description: "قانون الاستعمالات القانونية للقنب الهندي",
+    articleLabel: "المادة",
+  },
+  moudawana: {
+    key: "moudawana",
+    label: "مدونة الأسرة",
+    path: "data/moudawana",
+    description: "القانون رقم 70.03 بمثابة مدونة الأسرة",
+    articleLabel: "المادة",
+  },
 };
 
 /**

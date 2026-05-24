@@ -75,7 +75,7 @@ export function Footer() {
           </p>
           
           <p className="text-xs text-muted-foreground">
-            © {currentYear} قانون دوكس. جميع الحقوق محفوظة.
+            © {currentYear} قانونك. جميع الحقوق محفوظة.
           </p>
         </div>
       </div>

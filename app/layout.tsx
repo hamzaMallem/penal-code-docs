@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { IBM_Plex_Sans_Arabic } from "next/font/google";
+import { IBM_Plex_Sans_Arabic, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { ServiceWorkerProvider } from "@/components/providers/ServiceWorkerProvider";
 import { OfflineIndicator } from "@/components/features/OfflineIndicator";
@@ -12,8 +12,15 @@ const ibmPlexSansArabic = IBM_Plex_Sans_Arabic({
   display: "swap",
 });
 
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-mono",
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  display: "swap",
+});
+
 export const viewport: Viewport = {
-  themeColor: "#1B263B",
+  themeColor: "#10131a",
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
@@ -21,21 +28,21 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "قانون دوكس - قانون المسطرة الجنائية المغربي",
-  description: "موقع توثيق قانون المسطرة الجنائية المغربي - 679 مادة قانونية مع بحث فوري وتصفح سهل",
+  title: "قانونك - القوانين الجنائية المغربية",
+  description: "موقع توثيق القوانين الجنائية المغربية - 679 مادة قانونية مع بحث فوري وتصفح سهل",
   keywords: ["قانون", "المسطرة الجنائية", "المغرب", "قانون مغربي", "محاماة", "قانون جنائي"],
-  authors: [{ name: "Qanun Docs" }],
+  authors: [{ name: "Qanounak" }],
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "قانون دوكس",
+    title: "قانونك",
   },
   formatDetection: {
     telephone: false,
   },
   openGraph: {
-    title: "قانون دوكس - قانون المسطرة الجنائية المغربي",
+    title: "قانونك - القوانين الجنائية المغربية",
     description: "موقع توثيق قانون المسطرة الجنائية المغربي",
     locale: "ar_MA",
     type: "website",
@@ -60,12 +67,12 @@ export default function RootLayout({
       </head>
       <body 
         suppressHydrationWarning
-        className={`${ibmPlexSansArabic.variable} font-sans antialiased overflow-x-hidden max-w-full`}
+        className={`${ibmPlexSansArabic.variable} ${jetbrainsMono.variable} font-sans antialiased overflow-x-hidden max-w-full`}
       >
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
-          enableSystem
+          enableSystem={false}
           disableTransitionOnChange
         >
           <ServiceWorkerProvider>

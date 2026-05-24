@@ -1,8 +1,8 @@
-# BLACKBOX.md — Qanun Docs Project
+# BLACKBOX.md — Qanounak Project
 
 ## 🎯 Project Overview
 
-**Name:** Qanun Docs (قانون دوكس)
+**Name:** Qanounak (قانونك)
 **Type:** Legal Documentation Website (like DevDocs.io)
 **Language:** Arabic (RTL)
 **Content:** Moroccan Criminal Procedure Law (679 articles)

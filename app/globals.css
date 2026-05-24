@@ -64,6 +64,13 @@
    - WCAG AA compliant contrast ratios
    ========================================================================== */
 
+/* Smart Gateway accent tokens - available in both modes */
+:root {
+  --sg-blue: #2f81f7;
+  --sg-purple: #a371f7;
+  --sg-green: #3fb950;
+}
+
 /* Light Mode - Calm & Authoritative */
 :root {
   --radius: 0.625rem;
@@ -158,92 +165,73 @@
   --sidebar-ring: #1B263B;
 }
 
-/* Dark Mode - Deep & Authoritative */
+/* Dark Mode - Smart Gateway */
 .dark {
   /* =========================
      CORE READING COLORS
-     ألوان القراءة الأساسية
      ========================= */
-  
-  /* Background - Deep navy for reduced eye strain at night */
-  --background: #12161F;
-  --foreground: #E0E1DD;
-  
-  /* Card/Surface - Elevated surface */
-  --card: #1B263B;
-  --card-foreground: #E0E1DD;
-  
-  /* Popover - Same as card */
-  --popover: #1B263B;
-  --popover-foreground: #E0E1DD;
-  
+  --background: #10131a;
+  --foreground: #e0e2ec;
+
+  --card: #1d2027;
+  --card-foreground: #e0e2ec;
+
+  --popover: #1d2027;
+  --popover-foreground: #e0e2ec;
+
   /* =========================
      BRAND COLORS
-     ألوان العلامة التجارية
      ========================= */
-  
-  /* Primary - Muted blue for dark mode (less harsh) */
-  --primary: #4F5D75;
-  --primary-foreground: #E0E1DD;
-  
-  /* Secondary - Subtle surface variation */
-  --secondary: #2A334A;
-  --secondary-foreground: #E0E1DD;
-  
+  --primary: #acc7ff;
+  --primary-foreground: #002f68;
+
+  --secondary: #272a31;
+  --secondary-foreground: #e0e2ec;
+
   /* =========================
      UI COLORS
-     ألوان واجهة المستخدم
      ========================= */
-  
-  /* Muted - For secondary text */
-  --muted: #2A334A;
-  --muted-foreground: #A9B0C2;
-  
-  /* Accent - For hover states */
-  --accent: #2A334A;
-  --accent-foreground: #E0E1DD;
-  
-  /* Destructive - Error states */
-  --destructive: #EF4444;
-  
+  --muted: #1d2027;
+  --muted-foreground: #8b909f;
+
+  --accent: #272a31;
+  --accent-foreground: #e0e2ec;
+
+  --destructive: #ffb4ab;
+
   /* =========================
      BORDER & INPUT
-     الحدود والمدخلات
      ========================= */
-  --border: #2A334A;
-  --input: #2A334A;
-  --ring: #4F5D75;
-  
+  --border: #414754;
+  --input: #272a31;
+  --ring: #acc7ff;
+
   /* =========================
      LEGAL HIGHLIGHT (GOLD)
-     تمييز قانوني (ذهبي)
-     Same gold works in dark mode
      ========================= */
-  --legal-highlight: #C5A059;
-  --legal-highlight-foreground: #12161F;
-  
+  --legal-highlight: #c5a059;
+  --legal-highlight-foreground: #10131a;
+
   /* =========================
      CHART COLORS
-     ألوان الرسوم البيانية
      ========================= */
-  --chart-1: #4F5D75;
-  --chart-2: #A9B0C2;
-  --chart-3: #C5A059;
-  --chart-4: #E0E1DD;
-  --chart-5: #2A334A;
-  
+  --chart-1: #acc7ff;
+  --chart-2: #d5bbff;
+  --chart-3: #c5a059;
+  --chart-4: #e0e2ec;
+  --chart-5: #272a31;
+
   /* =========================
      SIDEBAR COLORS
-     ألوان الشريط الجانبي
      ========================= */
-  --sidebar: #1B263B;
-  --sidebar-foreground: #E0E1DD;
-  --sidebar-primary: #4F5D75;
-  --sidebar-primary-foreground: #E0E1DD;
-  --sidebar-accent: #2A334A;
-  --sidebar-accent-foreground: #E0E1DD;
-  --sidebar-border: #2A334A;
-  --sidebar-ring: #4F5D75;
+  --sidebar: #181c23;
+  --sidebar-foreground: #e0e2ec;
+  --sidebar-primary: #acc7ff;
+  --sidebar-primary-foreground: #002f68;
+  --sidebar-accent: #272a31;
+  --sidebar-accent-foreground: #e0e2ec;
+  --sidebar-border: #414754;
+  --sidebar-ring: #acc7ff;
 }
 
 @layer base {
@@ -285,17 +273,17 @@
     background: var(--foreground);
   }
   
-  /* Dark mode scrollbar - Deep navy palette */
+  /* Dark mode scrollbar - Smart Gateway palette */
   .dark ::-webkit-scrollbar-track {
-    background: #1B263B;
+    background: #181c23;
   }
-  
+
   .dark ::-webkit-scrollbar-thumb {
-    background: #2A334A;
+    background: #272a31;
   }
-  
+
   .dark ::-webkit-scrollbar-thumb:hover {
-    background: #4F5D75;
+    background: #414754;
   }
   
   /* Firefox */
@@ -305,7 +293,7 @@
   }
   
   .dark * {
-    scrollbar-color: #2A334A #1B263B;
+    scrollbar-color: #272a31 #181c23;
   }
 }
 

@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# tool sessions & local config
+.superpowers/
+.opencode/
+.claude/
+.blackbox/tmp/

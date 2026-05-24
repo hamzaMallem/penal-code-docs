@@ -7,8 +7,7 @@ import { Footer } from "@/components/layout/Footer";
 import { SearchModal } from "@/components/features/SearchModal";
 import { useKeyboardNav } from "@/hooks/useKeyboardNav";
 import { useGlobalSearch } from "@/hooks/useGlobalSearch";
-import { Book, Scale, Search, FileText, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Search, ChevronLeft } from "lucide-react";
 import { getLawSources } from "@/lib/law-sources";
 import {
   loadBookData,
@@ -16,6 +15,16 @@ import {
   getNodeLabel,
   getAvailableBookIds,
 } from "@/lib/data-loader";
+
+const LAW_ACCENT: Record<string, string> = {
+  cpp: "#2f81f7",
+  dp:  "#a371f7",
+};
+
+const LAW_LABEL: Record<string, string> = {
+  cpp: "ق.م.ج",
+  dp:  "ق.ج",
+};
 
 export default function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -25,10 +34,8 @@ export default function Home() {
   >({});
   const [loading, setLoading] = useState(true);
 
-  // Use centralized global search
-  const { search, totalArticles } = useGlobalSearch();
+  const { search } = useGlobalSearch();
 
-  // Load all books for all law sources
   useEffect(() => {
     const loadAllBooks = async () => {
       const lawSources = getLawSources();
@@ -39,8 +46,6 @@ export default function Home() {
 
       for (const lawSource of lawSources) {
         const books: { id: string; name: string; firstArticle?: string }[] = [];
-
-        // Get available book IDs from the static map
         const bookIds = getAvailableBookIds(lawSource.key);
 
         for (const bookId of bookIds) {
@@ -55,7 +60,7 @@ export default function Home() {
               });
             }
           } catch {
-            // Book doesn't exist, skip
+            // skip
           }
         }
 
@@ -69,7 +74,6 @@ export default function Home() {
     loadAllBooks();
   }, []);
 
-  // Keyboard navigation
   useKeyboardNav({
     onSearchOpen: () => setIsSearchOpen(true),
     onEscape: () => {
@@ -78,14 +82,10 @@ export default function Home() {
     },
   });
 
-  // Navigation items for sidebar
   const navItems = useMemo(() => {
-    const lawSources = getLawSources();
-    const items = [];
-
-    for (const lawSource of lawSources) {
+    return getLawSources().map((lawSource) => {
       const books = lawBooks[lawSource.key] || [];
-      items.push({
+      return {
         id: lawSource.key,
         label: lawSource.label,
         href: `/${lawSource.key}`,
@@ -97,11 +97,11 @@ export default function Home() {
             : `/${lawSource.key}/${book.id}`,
           children: [],
         })),
-      });
-    }
-
-    return items;
+      };
+    });
   }, [lawBooks]);
+
+  const lawSources = getLawSources();
 
   return (
     <div className="min-h-screen bg-background">
@@ -119,120 +119,94 @@ export default function Home() {
         />
 
         <main className="flex-1 sidebar-margin">
-          <div className="container mx-auto px-4 py-8">
-            {/* Hero Section */}
-            <section className="text-center py-12 mb-12">
-              <div className="flex justify-center mb-6">
-                <div className="p-4 bg-primary/10 rounded-full">
-                  <Scale className="h-16 w-16 text-primary" />
-                </div>
-              </div>
+          <div className="container mx-auto px-4 max-w-2xl">
 
-              <p className="text-sm text-muted-foreground mb-2">
-                بسم الله الرحمن الرحيم
-              </p>
-
-              <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-                قانون دوكس
+            {/* ── Hero ───────────────────────────────────────── */}
+            <section className="pt-16 pb-12 text-center">
+              <h1 className="text-4xl font-bold text-foreground mb-3 tracking-tight">
+                قانونك
               </h1>
-
-              {/* Mobile Hero Text */}
-              <p className="text-lg text-muted-foreground mb-2 md:hidden">
-                موسوعة رقمية لتصفح
-                <br />
-                قانون المسطرة الجنائية
-                <br />
-                والقانون الجنائي المغربي
-               
+              <p className="text-muted-foreground mb-8 text-base">
+                التشريع الجنائي المغربي · بحث ونصوص
               </p>
 
-              <p className="text-sm text-muted-foreground mb-6 md:hidden">
-                بحث ذكي · تنقّل مبسّط · قراءة مريحة
-              </p>
-
-              {/* Desktop Hero Text */}
-              <p className="text-xl text-muted-foreground mb-2 hidden md:block">
-                مرحبًا بكم في موسوعة قانون دوكس
-              </p>
-
-              <p className="text-lg text-muted-foreground mb-8 leading-relaxed hidden md:block">
-                منصة رقمية متخصصة في عرض وتصفح
-                <br />
-                قانون المسطرة الجنائية ومجموعة القانون الجنائي المغربي،
-                <br />
-                  في إطار مشروع تحديث تشريعي شامل،  أقرّه المشرّع المغربي بالقانون رقم 03.23.
-                <br />
-               
-             
-                <br />
-                مع بحث ذكي وتنقّل مبسّط وتجربة قراءة مريحة.
-              </p>
-
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                <Button
-                  size="lg"
-                  onClick={() => setIsSearchOpen(true)}
-                  className="gap-2"
+              {/* Search */}
+              <button
+                onClick={() => setIsSearchOpen(true)}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-border bg-card text-right transition-colors hover:border-border/80 hover:bg-card/80"
+              >
+                <Search className="h-4 w-4 shrink-0 text-muted-foreground order-last" />
+                <span className="flex-1 text-sm text-muted-foreground">
+                  ابحث عن فصل أو مادة...
+                </span>
+                <kbd
+                  className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-muted text-muted-foreground border border-border"
+                  style={{ fontFamily: "var(--font-mono, monospace)" }}
                 >
-                  <Search className="h-5 w-5" />
-                  ابدأ البحث
-                  <kbd className="mr-2 px-2 py-0.5 bg-primary-foreground/20 rounded text-xs">
-                    ⌘K
-                  </kbd>
-                </Button>
-
-                <Button
-                  size="lg"
-                  variant="ghost"
-                  asChild
-                >
-                  <a href="/about">
-                    حول المنصة
-                  </a>
-                </Button>
-              </div>
-
-              {totalArticles > 0 && (
-                <p className="text-sm text-muted-foreground mt-4">
-                  ابحث في جميع مواد وفصول القانون الجنائي المغربي بصيغته المحيّنة
-                </p>
-              )}
+                  ⌘K
+                </kbd>
+              </button>
             </section>
 
-            {/* Law Collections */}
-            <section className="mb-12">
-              <h2 className="text-2xl font-bold mb-6">مجموعات القوانين</h2>
-              <div className="space-y-8">
-                {getLawSources().map((lawSource) => {
-                  const books = lawBooks[lawSource.key] || [];
-                  return (
+            {/* ── Law Collections ────────────────────────────── */}
+            <section className="pb-12 space-y-4">
+              {lawSources.map((lawSource) => {
+                const accent = LAW_ACCENT[lawSource.key] ?? "#2f81f7";
+                const label = LAW_LABEL[lawSource.key] ?? "";
+                const books = lawBooks[lawSource.key] || [];
+
+                return (
+                  <div
+                    key={lawSource.key}
+                    className="relative rounded-xl border border-border bg-card overflow-hidden"
+                  >
+                    {/* Right-edge accent bar */}
                     <div
-                      key={lawSource.key}
-                      className="bg-card rounded-lg border border-border p-6"
-                    >
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="p-2 bg-primary/10 rounded-lg">
-                          <FileText className="h-6 w-6 text-primary" />
-                        </div>
+                      className="absolute top-0 right-0 w-[2px] h-full"
+                      style={{ background: accent }}
+                    />
+
+                    <div className="p-5">
+                      {/* Header */}
+                      <div className="flex items-center gap-2.5 mb-4">
+                        <span
+                          className="text-xs px-2 py-0.5 rounded font-medium"
+                          style={{
+                            background: `${accent}18`,
+                            color: accent,
+                            fontFamily: "var(--font-mono, monospace)",
+                          }}
+                        >
+                          {label}
+                        </span>
                         <div>
-                          <h3 className="text-xl font-bold text-foreground">
+                          <p className="text-sm font-semibold text-foreground leading-tight">
                             {lawSource.label}
-                          </h3>
+                          </p>
                           {lawSource.description && (
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-xs text-muted-foreground mt-0.5">
                               {lawSource.description}
                             </p>
                           )}
                         </div>
                       </div>
 
+                      <div className="h-px bg-border mb-3" />
+
+                      {/* Books */}
                       {loading ? (
-                        <div className="flex items-center justify-center py-8">
-                          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+                        <div className="flex justify-center py-6">
+                          <div
+                            className="w-4 h-4 rounded-full animate-spin"
+                            style={{
+                              border: `2px solid ${accent}30`,
+                              borderTopColor: accent,
+                            }}
+                          />
                         </div>
                       ) : books.length > 0 ? (
-                        <div className="grid md:grid-cols-2 gap-3">
-                          {books.map((book) => (
+                        <div className="space-y-0.5">
+                          {books.map((book, idx) => (
                             <a
                               key={book.id}
                               href={
@@ -240,47 +214,38 @@ export default function Home() {
                                   ? `/${lawSource.key}/${book.id}/${book.firstArticle}`
                                   : `/${lawSource.key}/${book.id}`
                               }
-                              className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-accent transition-colors"
+                              className="group flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-accent transition-colors"
                             >
-                              <Book className="h-4 w-4 text-primary shrink-0" />
-                              <span className="font-medium">{book.name}</span>
-                              <ChevronRight className="h-4 w-4 text-muted-foreground mr-auto" />
+                              <span
+                                className="text-[0.65rem] w-4 text-center shrink-0 tabular-nums"
+                                style={{
+                                  fontFamily: "var(--font-mono, monospace)",
+                                  color: accent,
+                                  opacity: 0.7,
+                                }}
+                              >
+                                {String(idx + 1).padStart(2, "0")}
+                              </span>
+                              <span className="flex-1 text-sm text-foreground/85">
+                                {book.name}
+                              </span>
+                              <ChevronLeft
+                                className="h-3.5 w-3.5 shrink-0 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+                              />
                             </a>
                           ))}
                         </div>
                       ) : (
-                        <p className="text-muted-foreground text-center py-4">
+                        <p className="text-muted-foreground text-center text-sm py-4">
                           لا توجد كتب متاحة
                         </p>
                       )}
                     </div>
-                  );
-                })}
-              </div>
+                  </div>
+                );
+              })}
             </section>
 
-            {/* Keyboard Shortcuts */}
-            <section className="p-6 rounded-lg border border-border bg-card">
-              <h2 className="text-xl font-bold mb-4">اختصارات لوحة المفاتيح</h2>
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">فتح البحث</span>
-                  <kbd className="px-2 py-1 bg-muted rounded text-sm">⌘K</kbd>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">المادة التالية</span>
-                  <kbd className="px-2 py-1 bg-muted rounded text-sm">←</kbd>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">المادة السابقة</span>
-                  <kbd className="px-2 py-1 bg-muted rounded text-sm">→</kbd>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">إغلاق</span>
-                  <kbd className="px-2 py-1 bg-muted rounded text-sm">Esc</kbd>
-                </div>
-              </div>
-            </section>
           </div>
 
           <Footer />

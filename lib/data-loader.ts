@@ -25,6 +25,15 @@ import dp_code_book_1 from "@/data/dp/code_book_1.json";
 import dp_code_book_2 from "@/data/dp/code_book_2.json";
 import dp_code_book_3 from "@/data/dp/code_book_3.json";
 
+// Narcotics Law (dahir-1974-drogues) - ظهير المخدرات 1974
+import drogues_1974 from "@/data/dahir-1974-drogues/1974-dahir-drogues.json";
+
+// Cannabis Law (loi-13-21) - قانون القنب الهندي
+import loi_13_21 from "@/data/loi-13-21/loi-13-21.json";
+
+// Family Code (moudawana) - مدونة الأسرة
+import moudawanat_al_ousra from "@/data/moudawana/moudawanat-al-ousra.json";
+
 /**
  * Generic node interface for JSON data
  * واجهة عامة للعقد في بيانات JSON
@@ -63,6 +72,15 @@ const BOOK_DATA: Record<string, Record<string, GenericNode>> = {
     code_book_1: dp_code_book_1 as unknown as GenericNode,
     code_book_2: dp_code_book_2 as unknown as GenericNode,
     code_book_3: dp_code_book_3 as unknown as GenericNode,
+  },
+  "dahir-1974-drogues": {
+    "1974-dahir-drogues": drogues_1974 as unknown as GenericNode,
+  },
+  "loi-13-21": {
+    "loi-13-21": loi_13_21 as unknown as GenericNode,
+  },
+  moudawana: {
+    "moudawanat-al-ousra": moudawanat_al_ousra as unknown as GenericNode,
   },
 };
 

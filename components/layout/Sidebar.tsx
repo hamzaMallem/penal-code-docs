@@ -26,7 +26,7 @@ interface NavItemComponentProps {
 
 // DevDocs-style navigation item with improved RTL Arabic text handling
 function NavItemComponent({ item, level = 0, activeItemId, onLinkClick }: NavItemComponentProps) {
-  const [isExpanded, setIsExpanded] = useState(item.isExpanded ?? level === 0);
+  const [isExpanded, setIsExpanded] = useState(item.isExpanded ?? false);
   const hasChildren = item.children && item.children.length > 0;
   const isActive = item.id === activeItemId;
 

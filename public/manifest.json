@@ -1,6 +1,6 @@
 {
-  "name": "قانون دوكس - القوانين المغربية",
-  "short_name": "قانون دوكس",
+  "name": "قانونك - القوانين المغربية",
+  "short_name": "قانونك",
   "description": "منصة القوانين المغربية - قانون المسطرة الجنائية والقانون الجنائي",
   "lang": "ar",
   "dir": "rtl",
@@ -67,14 +67,14 @@
       "sizes": "1280x720",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "قانون دوكس - الصفحة الرئيسية"
+      "label": "قانونك - الصفحة الرئيسية"
     },
     {
       "src": "/screenshots/mobile.png",
       "sizes": "750x1334",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "قانون دوكس - عرض الجوال"
+      "label": "قانونك - عرض الجوال"
     }
   ],
   "shortcuts": [

@@ -53,7 +53,7 @@ export default function AboutPage() {
               </h1>
 
               <p className="text-xl text-muted-foreground">
-                موسوعة قانون دوكس
+                قانونك
               </p>
             </section>
 
@@ -70,7 +70,7 @@ export default function AboutPage() {
                 </div>
 
                 <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                  موسوعة قانون دوكس هي منصة رقمية متخصصة في عرض وتصفح النصوص القانونية المغربية،
+                  قانونك هي منصة رقمية متخصصة في عرض وتصفح النصوص القانونية المغربية،
                   مع التركيز على قانون المسطرة الجنائية ومجموعة القانون الجنائي.
                 </p>
 

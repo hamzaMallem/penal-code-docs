@@ -9,7 +9,7 @@ import { Footer } from "@/components/layout/Footer";
 import { SearchModal } from "@/components/features/SearchModal";
 import { useKeyboardNav } from "@/hooks/useKeyboardNav";
 import { useLawSearch } from "@/hooks/useLawSearch";
-import { ChevronDown, ChevronLeft, FileText, Home } from "lucide-react";
+import { ChevronDown, ChevronLeft, FileText } from "lucide-react";
 import {
   loadBookData,
   findFirstArticle,
@@ -374,20 +374,22 @@ export default function BookPage() {
 
         <main className="flex-1 sidebar-margin">
           <div className="container mx-auto px-4 py-8">
-            {/* Breadcrumb */}
-            <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
-              <Link href="/" className="hover:text-primary flex items-center gap-1">
-                <Home className="h-4 w-4" />
-                <span>الرئيسية</span>
+            {/* Breadcrumb — book level */}
+            <nav
+              className="flex items-center gap-1.5 text-sm mb-6 flex-wrap"
+              aria-label="مسار التنقل"
+            >
+              <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors">
+                الرئيسية
               </Link>
-              <ChevronLeft className="h-4 w-4" />
+              <span aria-hidden="true" className="text-muted-foreground/30 select-none" dir="ltr">/</span>
               {lawSource && (
-                <Link href={`/${lawKey}`} className="hover:text-primary">
+                <Link href={`/${lawKey}`} className="text-muted-foreground hover:text-foreground transition-colors">
                   {lawSource.label}
                 </Link>
               )}
-              <ChevronLeft className="h-4 w-4" />
-              <span className="text-foreground">
+              <span aria-hidden="true" className="text-muted-foreground/30 select-none" dir="ltr">/</span>
+              <span className="text-foreground font-medium">
                 {bookData ? getNodeLabel(bookData, lawKey) : "جاري التحميل..."}
               </span>
             </nav>

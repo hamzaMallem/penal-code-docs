@@ -59,7 +59,7 @@ export default function OfflinePage() {
 
         {/* Technical info */}
         <p className="text-xs text-muted-foreground mt-8">
-          قانون دوكس - يعمل بدون إنترنت بعد الزيارة الأولى
+          قانونك - يعمل بدون إنترنت بعد الزيارة الأولى
         </p>
       </div>
     </div>
